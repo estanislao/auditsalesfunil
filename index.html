@@ -3,921 +3,795 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Funil de Vendas — HupData · Auditoria & Tax</title>
+<title>HupData × KNIME — Plano Completo Auditoria & Tax 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy:      #17203C;
-    --navy-dark: #D6E4F5;
-    --navy-mid:  #1C2847;
-    --navy-light:#243058;
-    --navy-card: #1A2540;
-    --gold:      #C8A84B;
-    --gold-l:    #E2C06A;
-    --gold-pale: rgba(200,168,75,0.12);
-    --gold-b:    rgba(200,168,75,0.3);
-    --white:     #FFFFFF;
-    --text:      #E8ECF4;
-    --muted:     #8A9AB8;
-    --faint:     #3D4E6E;
-    --border:    rgba(255,255,255,0.08);
-    --border2:   rgba(255,255,255,0.15);
-    --green:     #2EAB7B;
-    --green-p:   rgba(46,171,123,0.12);
-    --green-b:   rgba(46,171,123,0.3);
-    --red:       #E05252;
-    --red-p:     rgba(224,82,82,0.10);
-    --red-b:     rgba(224,82,82,0.3);
-    --blue:      #4A8FE0;
-    --blue-p:    rgba(74,143,224,0.12);
-    --purple:    #8B6FD4;
-    --purple-p:  rgba(139,111,212,0.12);
-    --orange:    #E07A30;
-    --orange-p:  rgba(224,122,48,0.12);
-    --teal:      #2AAAB8;
-    --teal-p:    rgba(42,170,184,0.12);
-    --font-d: 'Syne', sans-serif;
-    --font-b: 'DM Sans', sans-serif;
-    --font-m: 'DM Mono', monospace;
-    --r: 10px;
-  }
-  /* ── TOP ── */
-  .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 36px; border-bottom:1px solid var(--border); background:var(--navy); }
-  .topbar-brand { display:flex; align-items:center; gap:10px; }
-  .logo-mark { width:32px; height:32px; background:var(--gold); border-radius:7px; display:flex; align-items:center; justify-content:center; }
-  .logo-mark svg { width:16px; height:16px; }
-  .brand-name { font-family:var(--font-d); font-size:13px; font-weight:700; color:var(--white); }
-  .brand-sub  { font-size:10px; color:var(--muted); }
-  .topbar-right { display:flex; gap:7px; align-items:center; }
-  .badge { font-size:10.5px; font-weight:500; padding:3px 10px; border-radius:20px; border:1px solid; }
-  .badge-gold  { color:var(--gold-l); border-color:var(--gold-b); background:var(--gold-pale); }
-  .badge-green { color:var(--green); border-color:var(--green-b); background:var(--green-p); }
-  .badge-red   { color:var(--red); border-color:var(--red-b); background:var(--red-p); }
-
-  /* ── LAYOUT ── */
-  .page { padding:32px 36px; }
-  .page-title { font-family:var(--font-d); font-size:22px; font-weight:800; color:var(--white); margin-bottom:4px; }
-  .page-sub { font-size:13px; color:var(--muted); margin-bottom:28px; }
-
-  /* ── FUNIL VISUAL ── */
-  .funil-wrap { display:flex; gap:0; margin-bottom:32px; align-items:stretch; }
-
-  .funil-stage {
-    flex:1;
-    position:relative;
-    cursor:pointer;
-    transition:transform .15s;
-  }
-  .funil-stage:hover { transform:translateY(-3px); z-index:2; }
-  .funil-stage:hover .fs-inner { border-color:var(--border2); }
-
-  .fs-inner {
-    height:100%;
-    border:1px solid var(--border);
-    border-radius:0;
-    padding:18px 14px 16px;
-    background:var(--navy-card);
-    transition:border-color .15s;
-    display:flex;
-    flex-direction:column;
-  }
-  .funil-stage:first-child .fs-inner { border-radius:var(--r) 0 0 var(--r); }
-  .funil-stage:last-child  .fs-inner { border-radius:0 var(--r) var(--r) 0; }
-
-  .fs-stripe { height:3px; border-radius:2px; margin-bottom:14px; }
-  .fs-num    { font-family:var(--font-m); font-size:9.5px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-bottom:5px; }
-  .fs-name   { font-family:var(--font-d); font-size:14px; font-weight:700; color:var(--white); margin-bottom:4px; line-height:1.2; }
-  .fs-count  { font-family:var(--font-d); font-size:26px; font-weight:800; line-height:1; margin-bottom:4px; }
-  .fs-desc   { font-size:11px; color:var(--muted); line-height:1.5; flex:1; }
-  .fs-arrow  {
-    position:absolute; right:-1px; top:50%; transform:translateY(-50%);
-    width:14px; height:28px;
-    background:var(--navy);
-    clip-path:polygon(0 0, 100% 50%, 0 100%);
-    z-index:1;
-  }
-  .funil-stage:last-child .fs-arrow { display:none; }
-
-  /* ── DIVIDER ── */
-  .divider { height:1px; background:var(--border); margin:24px 0; }
-
-  /* ── SECTION HEAD ── */
-  .sh { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:18px; }
-  .sh h2 { font-family:var(--font-d); font-size:18px; font-weight:800; color:var(--white); }
-  .sh p  { font-size:12px; color:var(--muted); margin-top:3px; }
-  .sh-right { font-size:11px; color:var(--gold); font-family:var(--font-m); }
-
-  /* ── DETAIL PANEL ── */
-  .detail-panel { display:none; }
-  .detail-panel.active { display:block; }
-
-  /* ── GRID ── */
-  .g2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
-  .g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px; }
-
-  /* ── CARD ── */
-  .card { background:var(--navy-card); border:1px solid var(--border); border-radius:var(--r); padding:20px; }
-  .card-title { font-family:var(--font-d); font-size:13px; font-weight:700; color:var(--white); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
-  .card-sub   { font-size:11px; color:var(--muted); margin-bottom:14px; }
-  .ib { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
-  .ib-gold   { background:var(--gold-pale); }
-  .ib-green  { background:var(--green-p); }
-  .ib-blue   { background:var(--blue-p); }
-  .ib-red    { background:var(--red-p); }
-  .ib-purple { background:var(--purple-p); }
-  .ib-orange { background:var(--orange-p); }
-  .ib-teal   { background:var(--teal-p); }
-
-  /* ── LIST ── */
-  .li { display:flex; align-items:flex-start; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; color:var(--text); }
-  .li:last-child { border-bottom:none; }
-  .mk { font-size:9.5px; color:var(--gold); font-family:var(--font-m); flex-shrink:0; margin-top:3px; }
-  .mk-g { color:var(--green); }
-  .mk-b { color:var(--blue); }
-  .mk-p { color:var(--purple); }
-  .mk-t { color:var(--teal); }
-
-  /* ── AGENT TAG ── */
-  .agent { display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; margin-top:5px; }
-  .agent-diana  { background:rgba(42,170,184,0.15); color:var(--teal); border:1px solid rgba(42,170,184,0.3); }
-  .agent-huxley { background:var(--purple-p); color:var(--purple); border:1px solid rgba(139,111,212,0.3); }
-  .agent-manual { background:var(--gold-pale); color:var(--gold-l); border:1px solid var(--gold-b); }
-
-  /* ── ACTION ITEM ── */
-  .action-item {
-    background:var(--navy-mid);
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:13px 15px;
-    margin-bottom:8px;
-    transition:border-color .15s;
-  }
-  .action-item:hover { border-color:var(--border2); }
-  .ai-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:5px; }
-  .ai-title { font-size:12.5px; font-weight:500; color:var(--text); }
-  .ai-desc  { font-size:11px; color:var(--muted); line-height:1.5; }
-  .ai-tags  { display:flex; gap:5px; flex-wrap:wrap; margin-top:7px; }
-
-  /* ── URGENCY BANNER ── */
-  .urgency-banner {
-    background: linear-gradient(135deg, rgba(224,82,82,0.12) 0%, rgba(200,168,75,0.08) 100%);
-    border:1px solid var(--red-b);
-    border-radius:var(--r);
-    padding:16px 20px;
-    margin-bottom:20px;
-    display:flex;
-    align-items:flex-start;
-    gap:14px;
-  }
-  .ub-icon { font-size:22px; flex-shrink:0; }
-  .ub-title { font-family:var(--font-d); font-size:14px; font-weight:700; color:var(--red); margin-bottom:3px; }
-  .ub-text  { font-size:12px; color:var(--muted); line-height:1.6; }
-
-  /* ── STAGE SELECTOR ── */
-  .stage-selector { display:flex; gap:5px; margin-bottom:20px; flex-wrap:wrap; }
-  .ss-btn {
-    font-size:11.5px; padding:6px 14px; border-radius:6px;
-    border:1px solid var(--border); cursor:pointer;
-    color:var(--muted); transition:all .15s;
-    font-family:var(--font-m);
-  }
-  .ss-btn:hover { color:var(--text); border-color:var(--border2); }
-  .ss-btn.active { font-weight:600; }
-
-  /* ── COMPANY LIST ── */
-  .company-row {
-    display:flex; align-items:center; gap:12px;
-    padding:10px 14px; background:var(--navy-card);
-    border:1px solid var(--border); border-radius:8px;
-    margin-bottom:7px; cursor:pointer;
-    transition:border-color .15s;
-  }
-  .company-row:hover { border-color:var(--border2); }
-  .co-logo { width:36px; height:36px; border-radius:7px; background:var(--navy-light); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-family:var(--font-d); font-size:10px; font-weight:800; color:var(--text); flex-shrink:0; }
-  .co-info { flex:1; }
-  .co-name  { font-size:13px; font-weight:500; color:var(--text); }
-  .co-sub   { font-size:11px; color:var(--muted); margin-top:1px; }
-  .tempo-tag { font-size:10px; font-weight:500; padding:2px 8px; border-radius:4px; white-space:nowrap; }
-  .t-curto { background:var(--red-p); color:var(--red); border:1px solid var(--red-b); }
-  .t-medio { background:var(--gold-pale); color:var(--gold-l); border:1px solid var(--gold-b); }
-  .t-longo { background:var(--blue-p); color:var(--blue); border:1px solid rgba(74,143,224,0.3); }
-  .t-frio  { background:rgba(255,255,255,0.04); color:var(--faint); border:1px solid var(--border); }
-
-  /* ── AUTOMATION ROW ── */
-  .auto-row {
-    display:grid; grid-template-columns:200px 1fr auto;
-    gap:14px; align-items:start;
-    padding:12px 16px; background:var(--navy-card);
-    border:1px solid var(--border); border-radius:8px; margin-bottom:8px;
-  }
-  .auto-stage { font-size:11px; font-weight:600; color:var(--muted); font-family:var(--font-m); }
-  .auto-desc  { font-size:12px; color:var(--text); line-height:1.5; }
-  .auto-agent { display:flex; flex-direction:column; gap:4px; align-items:flex-end; }
-
-  /* ── PROGRESS ── */
-  .prog-bar { height:3px; background:rgba(255,255,255,0.06); border-radius:2px; margin-top:10px; overflow:hidden; }
-  .prog-fill { height:100%; border-radius:2px; }
-
-  /* ── PILLS ── */
-  .pill { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:500; padding:2px 8px; border-radius:20px; }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width:4px; height:4px; }
-  ::-webkit-scrollbar-track { background:transparent; }
-  ::-webkit-scrollbar-thumb { background:var(--faint); border-radius:2px; }
+:root{
+  --bg:#0F1628; --surface:#17203C; --card:#1A2847; --mid:#1C2D4A; --hover:#243058;
+  --gold:#C8A84B; --gold-l:#E2C06A; --gold-p:rgba(200,168,75,.13); --gold-b:rgba(200,168,75,.32);
+  --txt:#E8ECF4; --muted:#8A9AB8; --faint:#3D4E6E;
+  --brd:rgba(255,255,255,.08); --brd2:rgba(255,255,255,.16);
+  --green:#2EAB7B; --gp:rgba(46,171,123,.13); --gb:rgba(46,171,123,.32);
+  --red:#E05252; --rp:rgba(224,82,82,.12); --rb:rgba(224,82,82,.32);
+  --blue:#4A8FE0; --bp:rgba(74,143,224,.13);
+  --purple:#8B6FD4; --pp:rgba(139,111,212,.13);
+  --orange:#E07A30; --op:rgba(224,122,48,.13);
+  --teal:#2AAAB8; --tp:rgba(42,170,184,.13);
+  --fd:'Syne',sans-serif; --fb:'DM Sans',sans-serif; --fm:'DM Mono',monospace; --r:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:16.2px;line-height:1.6;min-height:100vh}
+/* LAYOUT */
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+/* SIDEBAR */
+.sb{background:var(--surface);border-right:1px solid var(--brd);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:9px}
+.sb-mark{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-mark svg{width:15px;height:15px}
+.sb-co{font-family:var(--fd);font-size:13.9px;font-weight:700;color:#fff}
+.sb-sub{font-size:10.4px;color:var(--muted);margin-top:1px}
+.sb-grp{padding:12px 13px 4px;font-size:10.4px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.nav{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13.9px;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none}
+.nav:hover{color:var(--txt);background:rgba(255,255,255,.03)}
+.nav.on{color:var(--gold-l);border-left-color:var(--gold);background:var(--gold-p)}
+.nd{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.ng{background:var(--gold)}.nb{background:var(--blue)}.nn{background:var(--green)}.nr{background:var(--red)}.np{background:var(--purple)}
+.sb-bot{margin-top:auto;padding:12px 16px;border-top:1px solid var(--brd);font-size:11.6px;color:var(--faint);line-height:1.6}
+.sb-bot strong{color:var(--muted)}
+/* MAIN */
+.main{overflow-x:hidden;min-height:100vh}
+/* TOPBAR */
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;border-bottom:1px solid var(--brd);background:var(--surface);position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:8px}
+.top-l{font-family:var(--fd);font-size:15.1px;font-weight:600;color:#fff}
+.top-sub{font-size:11.6px;color:var(--muted)}
+.top-r{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* BADGES */
+.bge{font-size:11.6px;font-weight:500;padding:2px 9px;border-radius:20px;border:1px solid}
+.bg-gold{color:var(--gold-l);border-color:var(--gold-b);background:var(--gold-p)}
+.bg-green{color:var(--green);border-color:var(--gb);background:var(--gp)}
+.bg-red{color:var(--red);border-color:var(--rb);background:var(--rp)}
+.bg-blue{color:var(--blue);border-color:rgba(74,143,224,.35);background:var(--bp)}
+/* PANELS */
+.pn{display:none;padding:28px 32px}.pn.on{display:block}
+/* SECTION HEADER */
+.sh{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--brd);flex-wrap:wrap;gap:8px}
+.sh h2{font-family:var(--fd);font-size:20.9px;font-weight:800;color:#fff}
+.sh p{font-size:13.3px;color:var(--muted);margin-top:3px}
+.sh-r{font-size:12.8px;color:var(--gold);font-family:var(--fm)}
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+/* CARD */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:12px;transition:border-color .2s}
+.card:hover{border-color:var(--brd2)}
+.ct{font-family:var(--fd);font-size:15.1px;font-weight:700;color:#fff;margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.cs{font-size:12.8px;color:var(--muted);margin-bottom:12px}
+.ib{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15.1px;flex-shrink:0}
+.ig{background:var(--gp)}.ib2{background:var(--bp)}.ir{background:var(--rp)}.io{background:var(--op)}.ip{background:var(--pp)}.it{background:var(--tp)}.iy{background:var(--gold-p)}
+/* METRIC CARD */
+.mc{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px}
+.mv{font-family:var(--fd);font-size:30.2px;font-weight:800;line-height:1;color:#fff}
+.mv.gold{color:var(--gold-l)}.mv.grn{color:var(--green)}.mv.blu{color:var(--blue)}.mv.red{color:var(--red)}
+.ml{font-size:12.8px;color:var(--muted);margin-top:4px;line-height:1.4}
+.mt{font-size:11.6px;margin-top:5px;color:var(--faint)}
+.mt.up{color:var(--green)}.mt.warn{color:var(--gold)}
+/* LIST */
+.li{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--brd);font-size:13.9px;color:var(--txt)}
+.li:last-child{border-bottom:none}
+.mk{font-size:10.4px;color:var(--gold);font-family:var(--fm);flex-shrink:0;margin-top:3px}
+.mkg{color:var(--green)}.mkb{color:var(--blue)}.mkp{color:var(--purple)}.mkt{color:var(--teal)}
+/* ACTION ITEM */
+.ai{background:var(--mid);border:1px solid var(--brd);border-radius:7px;padding:11px 13px;margin-bottom:7px}
+.ai:hover{border-color:var(--brd2)}
+.ai h4{font-size:13.9px;font-weight:500;color:var(--txt);margin-bottom:4px}
+.ai p{font-size:12.8px;color:var(--muted);line-height:1.5}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+/* AGENT TAGS */
+.ag{display:inline-flex;align-items:center;gap:4px;font-size:11.6px;font-weight:600;padding:2px 7px;border-radius:4px}
+.a-d{background:var(--tp);color:var(--teal);border:1px solid rgba(42,170,184,.32)}
+.a-h{background:var(--pp);color:var(--purple);border:1px solid rgba(139,111,212,.32)}
+.a-m{background:var(--op);color:var(--orange);border:1px solid rgba(224,122,48,.32)}
+.a-j{background:var(--gold-p);color:var(--gold-l);border:1px solid var(--gold-b)}
+/* URGENCY */
+.ub{background:linear-gradient(135deg,rgba(224,82,82,.1),rgba(200,168,75,.06));border:1px solid var(--rb);border-radius:var(--r);padding:13px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px}
+.ub-ico{font-size:20.9px;flex-shrink:0}
+.ub-t{font-family:var(--fd);font-size:15.1px;font-weight:700;color:var(--red);margin-bottom:2px}
+.ub-s{font-size:13.9px;color:var(--muted);line-height:1.6}
+/* DIVIDER */
+.dv{height:1px;background:var(--brd);margin:18px 0}
+/* FRENTE */
+.frente{background:var(--mid);border-radius:8px;padding:13px;border:1px solid var(--brd)}
+.fn{font-size:10.4px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;font-family:var(--fm)}
+.frente h4{font-family:var(--fd);font-size:14.5px;font-weight:700;margin-bottom:4px;color:#fff}
+.frente p{font-size:12.8px;color:var(--muted);line-height:1.5}
+.fm2{margin-top:9px;font-size:11.6px;color:var(--faint)}
+/* SPRINT BAR */
+.sbar{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 18px;margin-bottom:22px;display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.sbar::before{content:'';position:absolute;top:26px;left:10%;right:10%;height:2px;background:var(--brd)}
+.si{text-align:center;position:relative;z-index:1}
+.si-dot{width:11px;height:11px;border-radius:50%;margin:0 auto 5px;border:2px solid var(--bg)}
+.si-lbl{font-size:11.6px;font-family:var(--fm)}
+.si-dt{font-size:10.4px;color:var(--muted);margin-top:2px}
+.si-nt{font-size:10.4px;margin-top:1px}
+/* TIMELINE */
+.tl{position:relative;padding-left:24px}
+.tl::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:1px;background:var(--brd2)}
+.ti{position:relative;margin-bottom:24px}
+.td{position:absolute;left:-24px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg);z-index:1}
+.tp{font-family:var(--fm);font-size:11.0px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.tt{font-family:var(--fd);font-size:15.1px;font-weight:700;color:#fff;margin-bottom:9px}
+.tts{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.tk{background:var(--card);border:1px solid var(--brd);border-radius:7px;padding:8px 10px;font-size:12.8px;color:var(--muted);display:flex;gap:7px;align-items:flex-start}
+.tc{width:3px;border-radius:2px;flex-shrink:0;margin-top:2px;height:12px}
+.tc-g{background:var(--gold)}.tc-n{background:var(--green)}.tc-b{background:var(--blue)}.tc-r{background:var(--red)}
+.tk.done{opacity:.5}
+.dlbl{font-size:10.4px;background:var(--gp);color:var(--green);border-radius:3px;padding:1px 5px;margin-left:auto;white-space:nowrap;flex-shrink:0}
+/* FUNIL */
+.fw{display:flex;gap:0;margin-bottom:20px;align-items:stretch}
+.fs{flex:1;position:relative;cursor:pointer;transition:transform .15s}
+.fs:hover{transform:translateY(-3px);z-index:2}
+.fs-in{height:100%;border:1px solid var(--brd);padding:14px 11px 12px;background:var(--card);display:flex;flex-direction:column;transition:border-color .15s}
+.fs:hover .fs-in{border-color:var(--brd2)}
+.fs:first-child .fs-in{border-radius:var(--r) 0 0 var(--r)}
+.fs:last-child .fs-in{border-radius:0 var(--r) var(--r) 0}
+.fs-str{height:3px;border-radius:2px;margin-bottom:11px}
+.fs-n{font-family:var(--fm);font-size:10.4px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:3px}
+.fs-nm{font-family:var(--fd);font-size:14.5px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.2}
+.fs-c{font-family:var(--fd);font-size:25.5px;font-weight:800;line-height:1;margin-bottom:3px}
+.fs-d{font-size:12.2px;color:var(--muted);line-height:1.4;flex:1}
+.fs-arr{position:absolute;right:-1px;top:50%;transform:translateY(-50%);width:12px;height:24px;background:var(--bg);clip-path:polygon(0 0,100% 50%,0 100%);z-index:1}
+.fs:last-child .fs-arr{display:none}
+.pb{height:3px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:7px;overflow:hidden}
+.pf{height:100%;border-radius:2px}
+/* AUTO TABLE */
+.ar{display:grid;grid-template-columns:160px 1fr auto;gap:12px;align-items:start;padding:10px 14px;background:var(--card);border:1px solid var(--brd);border-radius:8px;margin-bottom:7px}
+.as{font-size:12.8px;font-weight:600;color:var(--muted);font-family:var(--fm)}
+.ad{font-size:13.3px;color:var(--txt);line-height:1.5}
+.aa{display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+/* EMAIL */
+.eflow{display:flex;gap:0;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.es{flex-shrink:0;width:175px;background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:13px;position:relative;cursor:pointer;transition:border-color .15s,transform .15s}
+.es:hover{border-color:var(--brd2);transform:translateY(-2px)}
+.es+.es{margin-left:9px}
+.es::after{content:'→';position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--faint);13.9px}
+.es:last-child::after{display:none}
+.es .dy{font-size:10.4px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-family:var(--fm)}
+.es .et{font-family:var(--fd);font-size:13.3px;font-weight:700;line-height:1.3;margin-bottom:4px;color:#fff}
+.es .ed{font-size:11.6px;color:var(--muted);line-height:1.4}
+.es.done{border-color:var(--gb)}.es.done .dy{color:var(--green)}
+.etabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.etab{font-size:12.8px;padding:4px 11px;border-radius:5px;border:1px solid var(--brd);cursor:pointer;color:var(--muted);transition:all .15s;font-family:var(--fm)}
+.etab:hover{color:var(--txt);border-color:var(--brd2)}
+.etab.on{color:var(--gold-l);border-color:var(--gold-b);background:var(--gold-p)}
+.etab.done{color:var(--green);border-color:var(--gb)}
+.ep{display:none}.ep.on{display:block}
+.epr{background:var(--mid);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden}
+.ehd{background:#0B1220;padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.em{font-size:12.2px;color:var(--muted);line-height:1.7}
+.em strong{color:var(--txt)}
+.ebo{padding:20px}
+.ebo h3{font-family:var(--fd);font-size:18.6px;font-weight:700;margin-bottom:12px;line-height:1.3;color:#fff}
+.ebo p{font-size:13.9px;color:var(--muted);line-height:1.7;margin-bottom:10px}
+.hl{background:var(--gold-p);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 7px 7px 0;margin:12px 0;font-size:13.9px;color:var(--txt);line-height:1.7}
+.cta-btn{display:inline-block;background:var(--gold);color:var(--bg);font-family:var(--fd);font-size:13.3px;font-weight:700;padding:8px 16px;border-radius:7px;margin-top:12px;text-decoration:none}
+.esig{margin-top:14px;padding-top:12px;border-top:1px solid var(--brd);font-size:12.2px;color:var(--muted)}
+.snote{margin-top:9px;padding:10px 13px;background:var(--card);border-radius:7px;border:1px solid var(--brd);font-size:12.8px;color:var(--muted)}
+.snote strong{color:var(--txt)}
+/* WEBINAR */
+.wtabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.wtab{font-size:13.3px;padding:5px 13px;border-radius:6px;border:1px solid var(--brd);cursor:pointer;color:var(--muted);transition:all .15s}
+.wtab:hover{color:var(--txt)}.wtab.on{color:var(--green);border-color:var(--gb);background:var(--gp)}
+.wp{display:none}.wp.on{display:block}
+.wcard{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.wbn{background:linear-gradient(135deg,var(--bg) 0%,var(--mid) 100%);padding:20px;border-bottom:1px solid var(--brd);position:relative;overflow:hidden}
+.wbn::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(200,168,75,.03) 18px,rgba(200,168,75,.03) 19px)}
+.wn{font-family:var(--fm);font-size:11.0px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;position:relative}
+.wt{font-family:var(--fd);font-size:19.7px;font-weight:800;line-height:1.2;position:relative;margin-bottom:10px;color:#fff}
+.wm{display:flex;gap:14px;font-size:12.8px;color:var(--muted);position:relative;flex-wrap:wrap}
+.wbody{padding:20px}
+.agi{display:grid;grid-template-columns:50px 1fr;gap:12px;padding:11px 0;border-bottom:1px solid var(--brd);align-items:start}
+.agi:last-child{border-bottom:none}
+.at{font-family:var(--fm);font-size:12.2px;color:var(--gold);padding-top:2px}
+.ah{font-size:13.9px;font-weight:500;margin-bottom:2px;color:var(--txt)}
+.ad2{font-size:12.8px;color:var(--muted);line-height:1.5}
+.atg{display:inline-block;font-size:10.4px;font-weight:500;padding:2px 7px;border-radius:4px;margin-top:4px}
+/* BC */
+.bctabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.bctab{font-size:13.3px;padding:5px 13px;border-radius:20px;border:1px solid var(--brd);cursor:pointer;color:var(--muted);transition:all .15s}
+.bctab:hover{color:var(--txt)}.bctab.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:600}
+.bcp{display:none}.bcp.on{display:block}
+.cl{display:flex;align-items:center;gap:12px}
+.clog{width:42px;height:42px;border-radius:9px;background:var(--hover);border:1px solid var(--brd2);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12.8px;font-weight:800;color:#fff}
+.cn{font-family:var(--fd);font-size:18.6px;font-weight:700;color:#fff}
+.cs2{font-size:12.8px;color:var(--muted);margin-top:2px}
+.rtbl{width:100%;border-collapse:collapse}
+.rtbl th{text-align:left;font-size:11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:6px 10px;border-bottom:1px solid var(--brd)}
+.rtbl td{padding:10px;border-bottom:1px solid var(--brd);13.3px}
+.rtbl tr:last-child td{border-bottom:none}
+.rlbl{color:var(--muted);12.2px}
+.vbig{font-family:var(--fd);font-size:18.6px;font-weight:700}
+.vg{color:var(--green)}.vgold{color:var(--gold-l)}
+.na{background:var(--rp);border:1px solid var(--rb);border-radius:8px;padding:12px;font-size:13.9px;line-height:1.7;margin-top:12px;color:var(--txt)}
+/* SHORT VIDEO */
+.sv{background:var(--mid);border:1px solid var(--brd);border-radius:8px;padding:12px;margin-bottom:8px}
+.sv h4{font-size:14.5px;font-weight:500;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.sv p{font-size:12.8px;color:var(--muted);line-height:1.5}
+.sv .tags{margin-top:7px}
+/* PERSONA */
+.persona{background:var(--mid);border-radius:8px;padding:14px;border:1px solid var(--brd)}
+.pr{font-size:11.0px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;font-family:var(--fm)}
+.persona h4{font-family:var(--fd);font-size:15.1px;font-weight:700;color:#fff;margin-bottom:5px}
+.persona p{font-size:12.8px;color:var(--muted);line-height:1.5}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--faint);border-radius:2px}
 </style>
 </head>
 <body>
+<div class="app">
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-brand">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M3 18L8 13L12 17L17 10L21 14" stroke="#17203C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <div>
-      <div class="brand-name">HupData · Funil de Vendas</div>
-      <div class="brand-sub">Vertical Auditoria & Tax · Jun 2026</div>
-    </div>
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M3 18L8 13L12 17L17 10L21 14" stroke="#17203C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><div class="sb-co">HupData × KNIME</div><div class="sb-sub">Auditoria & Tax · 2026</div></div>
   </div>
-  <div class="topbar-right">
-    <span class="badge badge-red">🔴 Sprint 2 crítico</span>
-    <span class="badge badge-green">Diana · prospecção</span>
-    <span class="badge badge-gold">Marcel · vendas 24h</span>
-    <span class="badge badge-gold">Huxley 3x/semana</span>
+  <div class="sb-grp">Plano Estratégico</div>
+  <div class="nav on" onclick="go('p1',this)"><span class="nd ng"></span>Dashboard & Contexto</div>
+  <div class="nav" onclick="go('p2',this)"><span class="nd nb"></span>Personas & Abordagem</div>
+  <div class="nav" onclick="go('p3',this)"><span class="nd ng"></span>Cronograma 90 dias</div>
+  <div class="sb-grp">Funil — Ações por Etapa</div>
+  <div class="nav" onclick="go('p4',this)"><span class="nd nb"></span>Visão Geral do Funil</div>
+  <div class="nav" onclick="go('p5',this)"><span class="nd nb"></span>01 · Topo & Atração</div>
+  <div class="nav" onclick="go('p6',this)"><span class="nd np"></span>02 · Contato Inicial</div>
+  <div class="nav" onclick="go('p7',this)"><span class="nd nn"></span>03 · Nutrição & MQL</div>
+  <div class="nav" onclick="go('p8',this)"><span class="nd ng"></span>04 · Reunião & Demo</div>
+  <div class="nav" onclick="go('p9',this)"><span class="nd nr"></span>05 · Proposta Ativa</div>
+  <div class="nav" onclick="go('p10',this)"><span class="nd nn"></span>06 · Fechamento</div>
+  <div class="sb-grp">Peças de MKT</div>
+  <div class="nav" onclick="go('p11',this)"><span class="nd nb"></span>Sequência de E-mails</div>
+  <div class="nav" onclick="go('p12',this)"><span class="nd nn"></span>Roteiros de Webinar</div>
+  <div class="nav" onclick="go('p13',this)"><span class="nd nr"></span>Short Videos · Academy</div>
+  <div class="sb-grp">Comercial</div>
+  <div class="nav" onclick="go('p14',this)"><span class="nd nr"></span>Business Case Builder</div>
+  <div class="nav" onclick="go('p15',this)"><span class="nd ng"></span>Parceria KNIME</div>
+  <div class="nav" onclick="go('p16',this)"><span class="nd np"></span>Diana · Marcel · Huxley</div>
+  <div class="sb-bot">
+    <strong>AuditNext 2026 · SP</strong><br>28 maio · 645 inscritos · 300 presentes<br>
+    Meta: <strong style="color:var(--gold)">30 propostas · 15 fechamentos</strong>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+<div class="top">
+  <div>
+    <div class="top-l">Plano Completo — Vertical Auditoria & Tax</div>
+    <div class="top-sub">HupData × KNIME · Jun–Set 2026</div>
+  </div>
+  <div class="top-r">
+    <span class="bge bg-red">🔴 Sprint 2 crítico</span>
+    <span class="bge bg-green">✓ E-mail 1 enviado</span>
+    <span class="bge bg-green">✓ eBook produzido</span>
+    <span class="bge bg-gold">Elite Partner KNIME</span>
   </div>
 </div>
 
-<div class="page">
+<!-- P1: DASHBOARD -->
+<div class="pn on" id="p1">
+  <div class="sh"><div><h2>Dashboard & Contexto Estratégico</h2><p>Por que Auditoria & Tax é a vertical mais quente do portfólio KNIME em 2026</p></div><div class="sh-r">AuditNext 2026 · 28/Mai · SP</div></div>
+  <div class="g4">
+    <div class="mc"><div class="mv gold">645</div><div class="ml">Inscritos no AuditNext</div><div class="mt warn">→ base ativa para nurture</div></div>
+    <div class="mc"><div class="mv">300</div><div class="ml">Presentes no evento</div><div class="mt up">↑ 46% conv. de inscrição</div></div>
+    <div class="mc"><div class="mv gold">30</div><div class="ml">Meta de propostas 2026</div><div class="mt warn">4 com proposta ativa agora</div></div>
+    <div class="mc"><div class="mv grn">15</div><div class="ml">Meta de negócios fechados</div><div class="mt up">Foco: Q2–Q4 2026</div></div>
+  </div>
+  <div class="ub"><div class="ub-ico">🔴</div><div><div class="ub-t">Prioridade máxima — Sprint 2 (16/Jun–04/Jul)</div><div class="ub-s">Fechar <strong>1 deal até 27/Jun</strong> e <strong>1 deal até 04/Jul</strong>. Josi liga para as 4 contas esta semana. Marcel monitora deals 24h. Diana qualifica leads inbound em paralelo. Huxley publica 3x/semana.</div></div></div>
+  <div class="g2">
+    <div class="card"><div class="ct"><span class="ib iy">⚡</span>Por que esse segmento agora</div><div class="cs">5 sinais claros do AuditNext</div>
+      <div class="li"><span class="mk">01</span>Auditores presos no Excel — vulnerabilidade clara ao pitch KNIME</div>
+      <div class="li"><span class="mk">02</span>Redução de 85% no tempo — argumento mais forte para equipes sobrecarregadas</div>
+      <div class="li"><span class="mk">03</span>Cases Rabobank, ING e Odebrecht validam com autoridade internacional</div>
+      <div class="li"><span class="mk">04</span>Patrocínio AuditNext posicionou HupData como referência no mercado GRC</div>
+      <div class="li"><span class="mk">05</span>Auditoria contínua é tendência regulatória crescente — cria urgência de compra</div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib ib2">📐</span>4 frentes simultâneas</div><div class="cs">Cada frente com responsável e cadência definidos</div>
+      <div class="g2" style="margin-top:10px;margin-bottom:0">
+        <div class="frente"><div class="fn" style="color:var(--gold)">Frente 01</div><h4>Nurture — 644 inscritos</h4><p>3 e-mails · 30 dias · segmentados por cargo</p><div class="fm2">Resp.: Ericka + Silene</div></div>
+        <div class="frente"><div class="fn" style="color:var(--green)">Frente 02</div><h4>Educação — Webinar mensal</h4><p>3 webinars · 90 dias · gravados para Academy</p><div class="fm2">Resp.: Ericka + convidado</div></div>
+        <div class="frente"><div class="fn" style="color:var(--red)">Frente 03</div><h4>Conversão — 4 contas</h4><p>Business Case + demo + piloto 30 dias</p><div class="fm2">Resp.: Josi · semanal</div></div>
+        <div class="frente"><div class="fn" style="color:var(--blue)">Frente 04</div><h4>Parceria — KNIME</h4><p>Webinar, eBook co-branded, certificação</p><div class="fm2">Resp.: Marcus · quinzenal</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  <div class="page-title">Funil de Vendas — Ações por Etapa</div>
-  <div class="page-sub">Clique em cada etapa do funil para ver as ações de vendas, MKT e automação com Diana e Huxley</div>
+<!-- P2: PERSONAS -->
+<div class="pn" id="p2">
+  <div class="sh"><div><h2>Personas & Abordagem por Nível</h2><p>A ponte analista → decisor é o desafio central neste segmento</p></div><div class="sh-r">4 perfis · linguagem e ação por nível</div></div>
+  <div class="g2">
+    <div class="persona"><div class="pr" style="color:var(--muted)">C1 · Usuário final</div><h4>Analista / Coordenador de Auditoria</h4><p>Participou do AuditNext. Usuário final. Influenciador interno — não assina budget.</p><div style="margin-top:8px;font-size:13.3px;color:var(--txt)"><strong style="color:var(--gold-l)">Linguagem:</strong> tempo economizado, autonomia, sem código, sem TI</div><div style="margin-top:5px;font-size:12.8px;color:var(--muted)"><strong>Ação:</strong> converter em campeão interno via Academy + short videos + webinar técnico</div></div>
+    <div class="persona"><div class="pr" style="color:var(--gold)">C2 · Validador técnico</div><h4>Head de Auditoria Interna / CAE</h4><p>Assina tecnicamente. Justifica para C-Level. Sensível a risco e compliance.</p><div style="margin-top:8px;font-size:13.3px;color:var(--txt)"><strong style="color:var(--gold-l)">Linguagem:</strong> cobertura de transações, risco operacional, auditoria contínua, ANEEL/ANVISA</div><div style="margin-top:5px;font-size:12.8px;color:var(--muted)"><strong>Ação:</strong> Business Case com ROI + demo ao vivo + piloto 30 dias</div></div>
+    <div class="persona"><div class="pr" style="color:var(--blue)">C3 · Decisor de budget</div><h4>CFO / COO / CEO</h4><p>Assina o contrato. ROI, risco e vantagem competitiva. Tempo escasso.</p><div style="margin-top:8px;font-size:13.3px;color:var(--txt)"><strong style="color:var(--gold-l)">Linguagem:</strong> ROI em R$, payback, risco operacional, benchmark de mercado</div><div style="margin-top:5px;font-size:12.8px;color:var(--muted)"><strong>Ação:</strong> Webinar #3 + diagnóstico 45min com Marcus + Business Case para o board</div></div>
+    <div class="persona"><div class="pr" style="color:var(--faint)">TI · Viabilizador</div><h4>TI / Segurança da Informação</h4><p>Viabiliza a implementação. Segurança, integração e governança.</p><div style="margin-top:8px;font-size:13.3px;color:var(--txt)"><strong style="color:var(--gold-l)">Linguagem:</strong> on-premise, SSO, rastreabilidade, sem shadow IT, API SAP/Oracle</div><div style="margin-top:5px;font-size:12.8px;color:var(--muted)"><strong>Ação:</strong> envolver apenas após aval do Head de Auditoria — não iniciar por TI</div></div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">🗺️</span>Mapa de abordagem por etapa</div><div class="cs">Quem fala com quem e com qual mensagem em cada momento</div>
+    <div class="g3" style="margin-top:12px;margin-bottom:0">
+      <div style="background:var(--mid);border-radius:8px;padding:12px;border:1px solid var(--brd)"><div style="11.6px;color:var(--blue);font-family:var(--fm);margin-bottom:6px">TOPO → CONTATO</div><div style="13.9px;font-weight:500;color:var(--txt);margin-bottom:4px">Ericka + Silene → Analistas</div><div style="12.8px;color:var(--muted)">Conteúdo Huxley + e-mails 1 e 2. Objetivo: consciência e primeiro engajamento.</div></div>
+      <div style="background:var(--mid);border-radius:8px;padding:12px;border:1px solid var(--brd)"><div style="11.6px;color:var(--teal);font-family:var(--fm);margin-bottom:6px">NUTRIÇÃO → REUNIÃO</div><div style="13.9px;font-weight:500;color:var(--txt);margin-bottom:4px">Josi → Heads e CAEs</div><div style="12.8px;color:var(--muted)">Webinar + eBook + demo. Converter analista em campeão e Head em oportunidade.</div></div>
+      <div style="background:var(--mid);border-radius:8px;padding:12px;border:1px solid var(--brd)"><div style="11.6px;color:var(--red);font-family:var(--fm);margin-bottom:6px">PROPOSTA → FECHAMENTO</div><div style="13.9px;font-weight:500;color:var(--txt);margin-bottom:4px">Marcus → CFO / CEO</div><div style="12.8px;color:var(--muted)">Business Case + diagnóstico executivo. Marcus lidera contas estratégicas. Marcel monitora 24h.</div></div>
+    </div>
+  </div>
+</div>
 
-  <!-- URGENCY -->
-  <div class="urgency-banner">
-    <div class="ub-icon">🔴</div>
+<!-- P3: CRONOGRAMA -->
+<div class="pn" id="p3">
+  <div class="sh"><div><h2>Cronograma 90 dias</h2><p>09/Jun → 05/Set 2026 · 4 sprints · 2 ações já concluídas</p></div><div class="sh-r">META: 30 propostas · 15 deals · 3 webinars</div></div>
+  <div class="sbar">
+    <div class="si"><div class="si-dot" style="background:var(--green)"></div><div class="si-lbl" style="color:var(--green)">Sprint 1</div><div class="si-dt">09–13/Jun</div><div class="si-nt" style="color:var(--green)">✓ Em andamento</div></div>
+    <div class="si"><div class="si-dot" style="background:var(--red)"></div><div class="si-lbl" style="color:var(--red)">Sprint 2 🔴</div><div class="si-dt">16/Jun–04/Jul</div><div class="si-nt" style="color:var(--red)">2 fechamentos aqui</div></div>
+    <div class="si"><div class="si-dot" style="background:var(--gold)"></div><div class="si-lbl" style="color:var(--gold-l)">Sprint 3</div><div class="si-dt">07/Jul–01/Ago</div><div class="si-nt" style="color:var(--gold-l)">Expansão pipeline</div></div>
+    <div class="si"><div class="si-dot" style="background:var(--blue)"></div><div class="si-lbl" style="color:var(--blue)">Sprint 4</div><div class="si-dt">04/Ago–05/Set</div><div class="si-nt" style="color:var(--blue)">Escala · fim 90d</div></div>
+  </div>
+  <div class="tl">
+    <div class="ti">
+      <div class="td" style="background:var(--green)"></div>
+      <div class="tp">Sprint 1 · 09–13/Jun · Semana 1</div>
+      <div class="tt">✅ Ativação imediata pós-evento</div>
+      <div class="tts">
+        <div class="tk done"><div class="tc tc-n"></div>E-mail 1 para 645 inscritos (recap + cheat sheet)<span class="dlbl">✓ feito</span></div>
+        <div class="tk done"><div class="tc tc-n"></div>Post LinkedIn pós-evento publicado<span class="dlbl">✓ feito</span></div>
+        <div class="tk"><div class="tc tc-r"></div>Follow-up 1:1 com agendamentos do evento (Josi + Silene)</div>
+        <div class="tk"><div class="tc tc-g"></div>Registrar leads no Pipedrive com tag "AuditNext2026"</div>
+        <div class="tk"><div class="tc tc-r"></div>Preparar demo personalizada para Sany, Magalu, Cimed, Copa</div>
+        <div class="tk"><div class="tc tc-b"></div>Contatar KNIME: agenda de colaboração (webinar, eBook, certificação)</div>
+      </div>
+    </div>
+    <div class="ti">
+      <div class="td" style="background:var(--red)"></div>
+      <div class="tp">Sprint 2 · 16/Jun–04/Jul · Semanas 3–4</div>
+      <div class="tt">📚 Educação & demanda — <span style="color:var(--red);13.9px">🎯 1 fechamento até 27/Jun + 1 até 04/Jul</span></div>
+      <div style="margin:8px 0 10px;background:var(--rp);border:1px solid var(--rb);border-radius:7px;padding:10px 13px;font-size:13.3px;color:var(--txt);line-height:1.6"><strong style="color:var(--red)">🔴 Prioridade crítica:</strong> Deal 1 até 27/Jun · Deal 2 até 04/Jul · Josi prioriza follow-up diário · Marcel monitora 24h</div>
+      <div class="tts">
+        <div class="tk" style="border-color:var(--rb);background:var(--rp)"><div class="tc tc-r"></div><strong style="color:var(--red)">🔴 Deal 1 · prazo: 27/Jun</strong> — Josi prioriza a conta mais quente</div>
+        <div class="tk" style="border-color:var(--rb);background:var(--rp)"><div class="tc tc-r"></div><strong style="color:var(--red)">🔴 Deal 2 · prazo: 04/Jul</strong> — não deixar escorregar para Sprint 3</div>
+        <div class="tk"><div class="tc tc-n"></div>Webinar #1: caso Odebrecht (Gemau Halla)</div>
+        <div class="tk"><div class="tc tc-b"></div>Lançar eBook co-branded + landing page de captura</div>
+        <div class="tk"><div class="tc tc-g"></div>E-mails 2 e 3 da sequência de nurture</div>
+        <div class="tk"><div class="tc tc-g"></div>Campanha LinkedIn Ads: Audit/Risk/Compliance Brasil</div>
+        <div class="tk"><div class="tc tc-n"></div>Short #1 e #2 gravados e publicados no Academy</div>
+        <div class="tk"><div class="tc tc-b"></div>2 artigos LinkedIn: anomaly detection + Tax automation</div>
+      </div>
+    </div>
+    <div class="ti">
+      <div class="td" style="background:var(--gold)"></div>
+      <div class="tp">Sprint 3 · 07/Jul–01/Ago · Semanas 5–8</div>
+      <div class="tt">💼 Expansão de pipeline & novos fechamentos</div>
+      <div class="tts">
+        <div class="tk"><div class="tc tc-r"></div>Continuar fechamentos nas contas restantes das 4</div>
+        <div class="tk"><div class="tc tc-n"></div>Webinar #2: "Redução de 85% no tempo — como chegamos lá"</div>
+        <div class="tk"><div class="tc tc-b"></div>Apresentar ao IIA Brasil como parceiro técnico GRC</div>
+        <div class="tk"><div class="tc tc-n"></div>Pilotos 30 dias para 3–5 leads quentes do nurture</div>
+        <div class="tk"><div class="tc tc-g"></div>E-mail 4: oferta de demo para os não convertidos</div>
+        <div class="tk"><div class="tc tc-r"></div>Business Case para Unimed, Hyundai, Tecban</div>
+        <div class="tk"><div class="tc tc-n"></div>Webinar #1 → 4–6 shorts publicados no Academy</div>
+        <div class="tk"><div class="tc tc-b"></div>Short #3: "Primeiros passos" + Short #4: Governança</div>
+      </div>
+    </div>
+    <div class="ti">
+      <div class="td" style="background:var(--blue)"></div>
+      <div class="tp">Sprint 4 · 04/Ago–05/Set · FIM DOS 90 DIAS</div>
+      <div class="tt">🚀 Escala & encerramento do ciclo</div>
+      <div class="tts">
+        <div class="tk"><div class="tc tc-g"></div>Confirmar patrocínio AuditNext 2027 ou IBGC 2026</div>
+        <div class="tk"><div class="tc tc-n"></div>Webinar #3: ROI C-Level + especialista KNIME convidado</div>
+        <div class="tk"><div class="tc tc-b"></div>Documentar case de sucesso do 1º cliente fechado</div>
+        <div class="tk"><div class="tc tc-b"></div>Lançar Certificação KNIME para Auditores (co-branded)</div>
+        <div class="tk"><div class="tc tc-r"></div>Revisão pipeline Q4 com Josi + forecast 2027</div>
+        <div class="tk"><div class="tc tc-n"></div>Meta final: 30 propostas · 15 deals · 3 webinars</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- P4: FUNIL VISUAL -->
+<div class="pn" id="p4">
+  <div class="sh"><div><h2>Visão Geral do Funil</h2><p>6 etapas com volumes reais · Diana, Marcel e Huxley ativos em todo o funil</p></div><div class="sh-r">Clique em uma etapa para as ações</div></div>
+  <div class="fw">
+    <div class="fs" onclick="go('p5',document.querySelectorAll('.nav')[4])"><div class="fs-in"><div class="fs-str" style="background:var(--blue)"></div><div class="fs-n">Etapa 01</div><div class="fs-nm">Topo<br>Consciência</div><div class="fs-c" style="color:var(--blue)">645</div><div class="fs-d">Inscritos + leads inbound Diana + audiência Huxley</div><div class="pb"><div class="pf" style="width:100%;background:var(--blue)"></div></div></div><div class="fs-arr"></div></div>
+    <div class="fs" onclick="go('p6',document.querySelectorAll('.nav')[5])"><div class="fs-in"><div class="fs-str" style="background:var(--purple)"></div><div class="fs-n">Etapa 02</div><div class="fs-nm">Contato<br>Inicial</div><div class="fs-c" style="color:var(--purple)">300</div><div class="fs-d">Presentes no AuditNext + contatos e-mail/LinkedIn</div><div class="pb"><div class="pf" style="width:46%;background:var(--purple)"></div></div></div><div class="fs-arr"></div></div>
+    <div class="fs" onclick="go('p7',document.querySelectorAll('.nav')[6])"><div class="fs-in"><div class="fs-str" style="background:var(--teal)"></div><div class="fs-n">Etapa 03</div><div class="fs-nm">Nutrição<br>& MQL</div><div class="fs-c" style="color:var(--teal)">80±</div><div class="fs-d">Engajaram com e-mails, webinar, eBook ou shorts</div><div class="pb"><div class="pf" style="width:28%;background:var(--teal)"></div></div></div><div class="fs-arr"></div></div>
+    <div class="fs" onclick="go('p8',document.querySelectorAll('.nav')[7])"><div class="fs-in"><div class="fs-str" style="background:var(--orange)"></div><div class="fs-n">Etapa 04</div><div class="fs-nm">Reunião<br>& Demo</div><div class="fs-c" style="color:var(--orange)">7+</div><div class="fs-d">Reuniões realizadas · curto / médio / longo prazo</div><div class="pb"><div class="pf" style="width:12%;background:var(--orange)"></div></div></div><div class="fs-arr"></div></div>
+    <div class="fs" onclick="go('p9',document.querySelectorAll('.nav')[8])"><div class="fs-in"><div class="fs-str" style="background:var(--gold)"></div><div class="fs-n">Etapa 05</div><div class="fs-nm">Proposta<br>Ativa</div><div class="fs-c" style="color:var(--gold-l)">4</div><div class="fs-d">Sany · Magalu · Cimed · Copa Energia</div><div class="pb"><div class="pf" style="width:8%;background:var(--gold)"></div></div></div><div class="fs-arr"></div></div>
+    <div class="fs" onclick="go('p10',document.querySelectorAll('.nav')[9])"><div class="fs-in"><div class="fs-str" style="background:var(--green)"></div><div class="fs-n">Etapa 06</div><div class="fs-nm">Fechamento<br>& Expansão</div><div class="fs-c" style="color:var(--green)">0→15</div><div class="fs-d">Meta 2026: 15 deals · 2 urgentes até 04/Jul</div><div class="pb"><div class="pf" style="width:3%;background:var(--green)"></div></div></div></div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib ip">🤖</span>Agentes por etapa do funil</div><div class="cs">Diana (prospecção) · Marcel (vendas ativas) · Huxley (conteúdo)</div>
+    <div class="ar"><div class="as" style="color:var(--blue)">01–02 · Topo & Contato</div><div class="ad"><strong style="color:var(--teal)">Diana:</strong> prioriza leads inbound, verifica Pipedrive antes do 1º contato, sugere script por cargo. <strong style="color:var(--purple)">Huxley:</strong> 3 posts/semana para o ICP Auditoria.</div><div class="aa"><span class="ag a-d">📡 Diana</span><span class="ag a-h">🤖 Huxley</span></div></div>
+    <div class="ar"><div class="as" style="color:var(--teal)">03 · Nutrição</div><div class="ad"><strong style="color:var(--teal)">Diana:</strong> alerta Josi quando empresa-alvo se inscreve no webinar. <strong style="color:var(--purple)">Huxley:</strong> nutre com conteúdo por setor e gera legendas dos shorts.</div><div class="aa"><span class="ag a-d">📡 Diana</span><span class="ag a-h">🤖 Huxley</span></div></div>
+    <div class="ar"><div class="as" style="color:var(--orange)">04–05 · Reunião & Proposta</div><div class="ad"><strong style="color:var(--orange)">Marcel:</strong> monitora deals 24h, envia prioridades diárias no Teams, resume reuniões gravadas com tarefas no Pipedrive, responde objeções e técnicas de fechamento.</div><div class="aa"><span class="ag a-m">🤝 Marcel</span><span class="ag a-h">🤖 Huxley</span></div></div>
+    <div class="ar"><div class="as" style="color:var(--green)">06 · Fechamento</div><div class="ad"><strong style="color:var(--orange)">Marcel:</strong> detecta proposta aceita e alerta o time. <strong style="color:var(--teal)">Diana:</strong> retira da fila de prospecção. <strong style="color:var(--purple)">Huxley:</strong> ativa ICP do setor para novos leads. CS briefing da Ericka → Marcel alerta expansão.</div><div class="aa"><span class="ag a-m">🤝 Marcel</span><span class="ag a-d">📡 Diana</span><span class="ag a-h">🤖 Huxley</span></div></div>
+  </div>
+</div>
+
+<!-- P5: ETAPA 01 -->
+<div class="pn" id="p5">
+  <div class="sh"><div><h2>Etapa 01 · Topo — Consciência & Atração</h2><p>Huxley 3x/semana · Diana 570+ leads · LinkedIn Ads · Landing page eBook</p></div><div class="sh-r">Silene executa · Ericka apresenta</div></div>
+  <div class="g3">
+    <div class="card"><div class="ct"><span class="ib ip">✍️</span>Conteúdo LinkedIn — Huxley</div><div class="cs">5 pilares editoriais · seg/qua/sex</div>
+      <div class="ai"><h4>5 pilares ativos para Auditoria & Tax</h4><p>Compliance Brasil · Automação de Auditoria · Monitoramento Contínuo · Self-Service Analytics · Governança de IA. Score médio 90/100.</p><div class="tags"><span class="ag a-h">🤖 Huxley gera</span><span class="ag a-j">Silene aprova</span></div></div>
+      <div class="ai"><h4>24 tópicos na fila · publicação automática</h4><p>Posts com dados do Brasil 2026. Abertura com dado concreto. 3 canais: LinkedIn, Instagram, Facebook.</p><div class="tags"><span class="ag a-h">🤖 Huxley automático</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib ib2">📣</span>LinkedIn Ads — campanha GRC</div><div class="cs">Segmentado por cargo Audit/Risk/Compliance Brasil</div>
+      <div class="ai"><h4>Diretores e Heads de Auditoria, CFO, CAE</h4><p>Empresas +R$100M. Regiões: SP, RJ, MG, RS. Testar 2 variações de headline por semana.</p><div class="tags"><span class="ag a-j">Silene executa</span></div></div>
+      <div class="ai"><h4>Criativos: posts Huxley com score 90+ como anúncios</h4><p>Reutilizar melhores posts orgânicos como paid. Huxley adapta legenda para formato de anúncio.</p><div class="tags"><span class="ag a-h">🤖 Huxley adapta</span><span class="ag a-j">Silene publica</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib it">📡</span>Diana — Prospecção outbound</div><div class="cs">Teams · 570+ inbound + 30 outbound · score diário</div>
+      <div class="ai"><h4>"Diana, me dá os melhores leads de auditoria desta semana"</h4><p>Diana analisa o banco, verifica Pipedrive e entrega card com nome, cargo, score e ângulo de abordagem por setor.</p><div class="tags"><span class="ag a-d">📡 Diana automático</span></div></div>
+      <div class="ai"><h4>Monitorar leads AuditNext ainda não contatados</h4><p>Josi consulta Diana diariamente para identificar e priorizar por score os leads ainda sem contato.</p><div class="tags"><span class="ag a-d">📡 Diana</span><span class="ag a-j">Josi executa</span></div></div>
+    </div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">⚡</span>Ações imediatas — Topo</div><div class="cs">Esta semana</div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div><div class="li"><span class="mk">01</span>Silene confirmar fila Huxley e aprovar os 9 primeiros posts para publicação imediata</div><div class="li"><span class="mk">02</span>Lançar campanha LinkedIn Ads com segmentação para Auditoria & Tax</div><div class="li"><span class="mk">03</span>Publicar post case Odebrecht (Gemau Halla) como âncora de autoridade</div></div>
+      <div><div class="li"><span class="mkb">04</span>Josi acessar Diana toda manhã: "quem abordar hoje?" — rotina diária</div><div class="li"><span class="mkb">05</span>Criar landing page do eBook como isca de captura de leads</div><div class="li"><span class="mkb">06</span>Configurar alerta Diana para leads de auditoria com score alto</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P6: ETAPA 02 -->
+<div class="pn" id="p6">
+  <div class="sh"><div><h2>Etapa 02 · Contato Inicial — Primeiro Engajamento</h2><p>300 presentes no AuditNext · E-mail 1 enviado · E-mail 2 urgente · Diana verifica antes</p></div><div class="sh-r">Diana + Josi</div></div>
+  <div class="g2">
+    <div class="card"><div class="ct"><span class="ib iy">📧</span>Sequência de e-mails em andamento</div><div class="cs">645 contatos · E-mail 1 enviado · E-mail 2 urgente</div>
+      <div class="ai" style="opacity:.5"><h4 style="text-decoration:line-through;color:var(--faint)">E-mail 1 (Dia 0) — Enviado ✓</h4><p>Recap AuditNext + Cheat Sheet KNIME para Auditores.</p></div>
+      <div class="ai" style="border-color:var(--gold-b);background:var(--gold-p)"><h4 style="color:var(--gold-l)">→ E-mail 2 (Dia 7) — PRÓXIMO A DISPARAR</h4><p>Case Rabobank: 300 auditores autônomos sem TI. Priorizar quem abriu o E-mail 1.</p><div class="tags"><span class="ag a-j">Ericka dispara</span></div></div>
+      <div class="ai"><h4>E-mail 3 (Dia 15) — Convite Webinar</h4><p>Webinar ao vivo com Gemau Halla (Odebrecht). Inscrição = MQL → Diana alerta Josi imediatamente.</p><div class="tags"><span class="ag a-d">📡 Diana monitora</span><span class="ag a-j">Ericka dispara</span></div></div>
+      <div class="ai"><h4>E-mail 4 (Dia 30) — Demo personalizada</h4><p>Enviado pela Josi, personalizado por empresa. CTA: 30min de Business Case ao vivo.</p><div class="tags"><span class="ag a-j">Josi envia</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib it">📡</span>Diana — Abordagem inteligente</div><div class="cs">Contexto completo antes de cada primeiro contato</div>
+      <div class="ai"><h4>"Como abordar um Head de Auditoria de energia?"</h4><p>Diana retorna: dor principal, argumento com case (Copa/Energisa), script de primeira mensagem e verificação Pipedrive.</p><div class="tags"><span class="ag a-d">📡 Diana</span><span class="ag a-j">Josi executa</span></div></div>
+      <div class="ai"><h4>Leads que não responderam ao e-mail</h4><p>Diana identifica quem abriu mas não clicou → Josi aborda via LinkedIn com mensagem personalizada por setor.</p><div class="tags"><span class="ag a-d">📡 Diana filtra</span><span class="ag a-j">Josi aborda</span></div></div>
+      <div class="ai"><h4>"A empresa X já está no Pipedrive?"</h4><p>Diana retorna histórico, deal aberto e responsável. Evita abordar lead já em negociação.</p><div class="tags"><span class="ag a-d">📡 Diana automático</span></div></div>
+    </div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">⚡</span>Ações imediatas — Contato Inicial</div><div class="cs">Esta semana</div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div><div class="li"><span class="mk">01</span>Disparar E-mail 2 para quem abriu o E-mail 1 — Ericka</div><div class="li"><span class="mk">02</span>Reenviar E-mail 1 com assunto alternativo para quem não abriu</div><div class="li"><span class="mk">03</span>Josi usar Diana toda manhã para identificar leads não contatados</div></div>
+      <div><div class="li"><span class="mkb">04</span>Josi abordar via LinkedIn os 50+ presentes sem resposta ainda</div><div class="li"><span class="mkb">05</span>Confirmar data do Webinar #1 (Gemau Halla) antes de disparar E-mail 3</div><div class="li"><span class="mkb">06</span>Registrar todos os contatos no Pipedrive com tag "AuditNext2026"</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P7: ETAPA 03 -->
+<div class="pn" id="p7">
+  <div class="sh"><div><h2>Etapa 03 · Nutrição & MQL</h2><p>Webinar · eBook ✓ · Short Videos · Academy PT · Certificação KNIME</p></div><div class="sh-r">Meta: 8–12% conv. para MQL</div></div>
+  <div class="g3">
+    <div class="card"><div class="ct"><span class="ib ig">🎙</span>Webinar #1 — Caso Odebrecht</div><div class="cs">Principal ativação de MQL desta etapa</div>
+      <div class="ai"><h4>Inscrição = MQL automático</h4><p>Diana alerta Josi quando empresa-alvo se inscreve. Josi liga antes do webinar para construir relacionamento.</p><div class="tags"><span class="ag a-d">📡 Diana alerta</span><span class="ag a-j">Josi liga</span></div></div>
+      <div class="ai"><h4>ROI Calculator ao vivo</h4><p>Perguntar ao chat: quantas horas/semana em processos manuais? Calcular ao vivo o retorno por setor.</p><div class="tags"><span class="ag a-j">Ericka apresenta</span></div></div>
+      <div class="ai"><h4>Webinar → Shorts para o Academy</h4><p>Após o webinar: recortar em 4–6 clips temáticos (2–5 min). Academy PT + LinkedIn + Instagram Reels.</p><div class="tags"><span class="ag a-h">🤖 Huxley legenda</span><span class="ag a-j">Silene publica</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib ip">📘</span>eBook co-branded KNIME</div><div class="cs">"KNIME para Auditores" · <span style="color:var(--green);font-size:11.6px;font-weight:600">✓ Produzido</span></div>
+      <div class="ai"><h4>Download = formulário de qualificação</h4><p>Landing page com nome, empresa, cargo, maior desafio. Respostas alimentam scoring no Pipedrive via Diana.</p><div class="tags"><span class="ag a-d">📡 Diana registra</span><span class="ag a-j">Silene publica</span></div></div>
+      <div class="ai"><h4>Huxley divulga em sequência de 3 posts</h4><p>Posts em dias alternados nos 3 canais para maximizar downloads e capturas de lead.</p><div class="tags"><span class="ag a-h">🤖 Huxley</span><span class="ag a-j">Silene aprova</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib it">🎓</span>KNIME Academy — Trilha Auditoria</div><div class="cs">Shorts + certificação co-branded · Lançamento Webinar #3</div>
+      <div class="ai"><h4>Analistas que concluem trilha = campeão interno</h4><p>Usuário vira defensor da compra do Hub. Diana identifica empresa com trilha ativa ainda não contatada.</p><div class="tags"><span class="ag a-d">📡 Diana monitora</span></div></div>
+      <div class="ai"><h4>Certificação como argumento de upsell</h4><p>Incluir certificação no pacote Hub como diferencial competitivo. Josi menciona na proposta.</p><div class="tags"><span class="ag a-j">Josi inclui na proposta</span></div></div>
+    </div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib ir">🎬</span>Short Videos — KNIME Academy</div><div class="cs">4 shorts originais + protocolo Webinar→Shorts · Ericka grava · Huxley legenda · Silene distribui</div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div>
+        <div class="sv"><h4>🎯 Short #1 — "Como automação traz resultados"</h4><p>Vídeo de abertura. Antes/depois de um processo: semanas → minutos. 85% de redução como âncora. Câmera + tela.</p><div class="tags"><span class="ag a-j">Ericka apresenta</span><span class="ag a-h">🤖 Huxley roteiro</span></div></div>
+        <div class="sv"><h4>📊 Short #2 — "No Excel é assim, no KNIME é assim"</h4><p>Comparação visual lado a lado: VLOOKUP manual vs automático. Ganho: 6h → 8min. Sem código. Sem TI.</p><div class="tags"><span class="ag a-j">Ericka · screen recording</span></div></div>
+      </div>
+      <div>
+        <div class="sv"><h4>🔍 Short #3 — "Primeiros passos: meu primeiro workflow"</h4><p>Tutorial hands-on 5 min: planilha → filtro de anomalia → relatório. Desmistificar para auditor sem perfil técnico.</p><div class="tags"><span class="ag a-j">Ericka · screen recording</span></div></div>
+        <div class="sv"><h4>🏛️ Short #4 — "Exemplos de governança com o KNIME"</h4><p>KNIME Hub: versionamento, rastreabilidade, trilha de auditoria. Argumento direto para ANVISA, ANEEL, compliance bancário.</p><div class="tags"><span class="ag a-j">Ericka · foco no Hub</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">⚡</span>Ações imediatas — Nutrição</div><div class="cs">Próximos 15 dias</div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div><div class="li"><span class="mk">01</span>Confirmar data e convidado (Gemau Halla) do Webinar #1</div><div class="li" style="opacity:.5"><span class="mkg">02</span><span style="text-decoration:line-through;color:var(--faint)">eBook — Ericka + Silene</span> <span style="color:var(--green);font-size:11.6px;font-weight:600">✓ Feito</span></div><div class="li"><span class="mk">03</span>Huxley gerar posts de divulgação do webinar e do eBook</div></div>
+      <div><div class="li"><span class="mkb">04</span>Ericka gravar Short #1 ("Como automação traz resultados") e Short #2 ("Excel vs KNIME")</div><div class="li"><span class="mkb">05</span>Silene publicar no Academy PT e agendar no LinkedIn</div><div class="li"><span class="mkb">06</span>Enviar E-mail 3 (convite webinar) quando data estiver confirmada</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P8: ETAPA 04 -->
+<div class="pn" id="p8">
+  <div class="sh"><div><h2>Etapa 04 · Reunião & Demo — Oportunidade</h2><p>7+ reuniões realizadas · Marcel monitora · classificar curto / médio / longo prazo</p></div><div class="sh-r">Marcel + Huxley</div></div>
+  <div class="ub" style="border-color:var(--gold-b);background:var(--gold-p)"><div class="ub-ico">⚠️</div><div><div class="ub-t" style="color:var(--gold-l)">Classificar todas as reuniões agora</div><div class="ub-s">Curto prazo (fechar em 30 dias) · Médio prazo (60–90 dias) · Longo prazo (+90 dias) · Sem interesse. Marcel detecta inatividade e alerta Josi. Registrar tudo no Pipedrive.</div></div></div>
+  <div class="g2">
+    <div class="card"><div class="ct"><span class="ib ir">🎯</span>Leads de curto prazo — ação agora</div><div class="cs">Marcel monitora · fechar em até 30 dias</div>
+      <div class="ai"><h4>Marcel: "Qual o status do deal [empresa]?" antes de ligar</h4><p>Marcel verifica Pipedrive, histórico e última atividade. Josi chega na ligação com contexto completo e próximo passo claro.</p><div class="tags"><span class="ag a-m">🤝 Marcel</span><span class="ag a-j">Josi executa</span></div></div>
+      <div class="ai"><h4>Demo Hub ao vivo — 1 processo específico do cliente</h4><p>Ericka demonstra KNIME Hub com processo específico da empresa. Business Case impresso com ROI do setor.</p><div class="tags"><span class="ag a-j">Ericka + Josi</span></div></div>
+      <div class="ai"><h4>Piloto gratuito 30 dias como acelerador de decisão</h4><p>Piloto num único processo, resultado mensurável em 30 dias. Reduz risco percebido. Marcus aprova caso a caso.</p><div class="tags"><span class="ag a-j">Marcus aprova</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib iy">📅</span>Leads de médio/longo prazo — nurture</div><div class="cs">Decisão em 60–90+ dias · não deixar esfriar</div>
+      <div class="ai"><h4>Huxley nutre com conteúdo do setor específico</h4><p>Silene configura o ICP correto. Lead recebe posts relevantes ao seu setor enquanto amadurece a decisão.</p><div class="tags"><span class="ag a-h">🤖 Huxley</span><span class="ag a-j">Silene configura</span></div></div>
+      <div class="ai"><h4>Marcel alerta quando deal de médio prazo esfria</h4><p>Marcel detecta deals sem atividade há X dias e manda alerta no Teams: "Deal parado há 15 dias — ação sugerida."</p><div class="tags"><span class="ag a-m">🤝 Marcel</span><span class="ag a-j">Josi liga</span></div></div>
+      <div class="ai"><h4>Convidar para Webinar #2 e #3 como reativação</h4><p>Webinars são touchpoints naturais para leads de médio prazo. Ericka inclui esses leads na lista de convites.</p><div class="tags"><span class="ag a-j">Ericka inclui na lista</span></div></div>
+    </div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">⚡</span>Ações imediatas — Reunião & Demo</div><div class="cs">Esta semana</div>
+    <div class="g2" style="margin-top:12px;margin-bottom:0">
+      <div><div class="li"><span class="mk">01</span>Josi classificar todas as 7+ reuniões: curto/médio/longo/sem interesse no Pipedrive</div><div class="li"><span class="mk">02</span>Perguntar ao Marcel "Qual o status do deal?" antes de cada follow-up de curto prazo</div><div class="li"><span class="mk">03</span>Gravar reuniões de demo no OneDrive — Marcel cria tarefas automaticamente</div></div>
+      <div><div class="li"><span class="mkb">04</span>Silene configurar Huxley para nutrir leads de médio/longo por setor específico</div><div class="li"><span class="mkb">05</span>Marcus revisar lista e indicar quais merecem seu envolvimento direto (C-Level)</div><div class="li"><span class="mkb">06</span>Todos os leads de médio/longo recebem convite para Webinar #1</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P9: ETAPA 05 -->
+<div class="pn" id="p9">
+  <div class="sh"><div><h2>Etapa 05 · Proposta Ativa — Negociação</h2><p>4 contas com proposta Hub · Marcel monitora 24h · Foco total aqui agora</p></div><div class="sh-r">🔴 Meta Sprint 2: 2 fechamentos até 04/Jul</div></div>
+  <div class="ub"><div class="ub-ico">🔴</div><div><div class="ub-t">Ação crítica — próximos 12 dias</div><div class="ub-s">Josi liga para cada uma das 4 contas esta semana. Não aguardar e-mail. Marcel monitora 24h e envia prioridades no Teams. Marcus lidera a Cimed diretamente. Business Case impresso para cada conta.</div></div></div>
+  <div class="g2">
+    <div class="card"><div class="ct"><span class="ib io">🤝</span>Marcel — Suporte à negociação ativa</div><div class="cs">Monitora deals 24h · prioridades diárias no Teams</div>
+      <div class="ai"><h4>"Quais são minhas prioridades hoje?"</h4><p>Marcel verifica Pipedrive a cada hora e envia até 3 prioridades diárias para Josi no Teams. Detecta deals atrasados e sugere ação concreta.</p><div class="tags"><span class="ag a-m">🤝 Marcel</span></div></div>
+      <div class="ai"><h4>"Como lidar com objeção de preço?" / "Cliente sumiu há 2 semanas"</h4><p>Marcel responde com técnicas de venda validadas, scripts de reativação e argumentos específicos para o contexto do deal.</p><div class="tags"><span class="ag a-m">🤝 Marcel</span><span class="ag a-j">Josi usa script</span></div></div>
+      <div class="ai"><h4>Resumo automático de reuniões → tarefas no Pipedrive</h4><p>Salvar gravação na pasta OneDrive e avisar Marcel "resuma reunião". Marcel lê, resume e cria atividades automaticamente.</p><div class="tags"><span class="ag a-m">🤝 Marcel automático</span></div></div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib ir">🎯</span>Playbook de fechamento</div><div class="cs">Ação específica por conta ativa</div>
+      <div class="ai"><h4>Ligar esta semana para todos os 4 decisores</h4><p>Não aguardar e-mail. Josi liga. Para C-Level da Cimed: Marcus lidera. Objetivo: confirmar próximo passo concreto.</p><div class="tags"><span class="ag a-j">Josi + Marcus</span></div></div>
+      <div class="ai"><h4>Piloto 30 dias como acelerador de decisão</h4><p>Piloto num único processo, sem custo, resultado mensurável em 30 dias. Reduz risco percebido e acelera decisão.</p><div class="tags"><span class="ag a-j">Marcus aprova caso a caso</span></div></div>
+      <div class="ai"><h4>Business Case por escrito pós-ligação (em até 2h)</h4><p>Após cada ligação: Business Case com números do setor. Ericka prepara, Josi envia em até 2 horas.</p><div class="tags"><span class="ag a-j">Ericka prepara · Josi envia</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P10: ETAPA 06 -->
+<div class="pn" id="p10">
+  <div class="sh"><div><h2>Etapa 06 · Fechamento & Expansão</h2><p>Meta: 15 deals · Sprint 2: 2 até 04/Jul · Cada cliente vira motor de novos deals</p></div><div class="sh-r">Meta: 30 propostas · 15 fechamentos · 2026</div></div>
+  <div class="g3">
+    <div class="card"><div class="ct"><span class="ib ig">✅</span>Checklist de fechamento</div><div class="cs">Sequência obrigatória após proposta aceita</div>
+      <div class="li"><span class="mkg">01</span>Proposta aceita verbalmente → contrato enviado em 24h</div>
+      <div class="li"><span class="mkg">02</span>Assinatura → onboarding agendado com Ericka (CS)</div>
+      <div class="li"><span class="mkg">03</span>CS briefing registrado no Pipedrive com contexto da venda</div>
+      <div class="li"><span class="mkg">04</span>Silene notificada para publicar post de boas-vindas ao cliente</div>
+      <div class="li"><span class="mkg">05</span>Huxley ativado para conteúdo do setor do novo cliente</div>
+      <div class="li"><span class="mkg">06</span>Agendar reunião de 30 dias para coleta de resultado e case</div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib ip">🚀</span>Expansão — Upsell & Referência</div><div class="cs">Cada cliente fechado vira motor de novos deals</div>
+      <div class="li"><span class="mkp">01</span>Documentar case de sucesso em 30 dias com números reais</div>
+      <div class="li"><span class="mkp">02</span>Usar case como âncora no Webinar #2 (cliente apresenta ao vivo)</div>
+      <div class="li"><span class="mkp">03</span>Huxley injeta o case novo nos posts de auditoria</div>
+      <div class="li"><span class="mkp">04</span>Identificar outras áreas da empresa para upsell do Hub</div>
+      <div class="li"><span class="mkp">05</span>Pedir indicação de contato em outra empresa do setor</div>
+      <div class="li"><span class="mkp">06</span>Convidar cliente para co-apresentar o Webinar #2</div>
+    </div>
+    <div class="card"><div class="ct"><span class="ib it">🤖</span>Automação pós-fechamento</div><div class="cs">Diana + Marcel + Huxley continuam trabalhando</div>
+      <div class="li"><span class="mkt">01</span>Marcel detecta proposta aceita e alerta todo o time</div>
+      <div class="li"><span class="mkt">02</span>Diana retira cliente da fila de prospecção automaticamente</div>
+      <div class="li"><span class="mkt">03</span>Huxley ativa ICP do setor para gerar leads similares</div>
+      <div class="li"><span class="mkt">04</span>CS briefing da Ericka → Marcel alerta Josi sobre expansão</div>
+      <div class="li"><span class="mkt">05</span>Relatório mensal para Marcus: deals, ARR, expansão, pipeline</div>
+      <div class="li"><span class="mkt">06</span>Case enviado ao KNIME para reforçar parceria</div>
+    </div>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,rgba(46,171,123,.07),rgba(200,168,75,.04));border-color:var(--gb)">
+    <div class="ct" style="color:var(--green)"><span class="ib ig">🏆</span>Metas do ciclo 90 dias</div>
+    <div class="g3" style="margin-top:12px;margin-bottom:0">
+      <div style="text-align:center;padding:14px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><div style="font-family:var(--fd);font-size:30.2px;font-weight:800;color:var(--red)">2</div><div style="12.8px;color:var(--muted);margin-top:3px">Deals até 04/Jul<br><span style="color:var(--red);11.6px">Sprint 2 — crítico</span></div></div>
+      <div style="text-align:center;padding:14px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><div style="font-family:var(--fd);font-size:30.2px;font-weight:800;color:var(--gold-l)">30</div><div style="12.8px;color:var(--muted);margin-top:3px">Propostas enviadas<br><span style="color:var(--gold-l);11.6px">até 05/Set</span></div></div>
+      <div style="text-align:center;padding:14px;background:var(--card);border-radius:8px;border:1px solid var(--brd)"><div style="font-family:var(--fd);font-size:30.2px;font-weight:800;color:var(--green)">15</div><div style="12.8px;color:var(--muted);margin-top:3px">Negócios fechados<br><span style="color:var(--green);11.6px">meta 2026</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- P11: EMAILS -->
+<div class="pn" id="p11">
+  <div class="sh"><div><h2>Sequência de E-mails</h2><p>4 e-mails · 30 dias · 645 inscritos · E-mail 1 já disparado</p></div><div class="sh-r">Meta: 8–12% conv. para MQL</div></div>
+  <div class="eflow">
+    <div class="es done"><div class="dy">Dia 0</div><div class="et">Recap + Cheat Sheet</div><div class="ed">Obrigado + material + kit KNIME auditoria.</div><div style="margin-top:8px"><span class="bge bg-green" style="10.4px">✓ Enviado</span></div></div>
+    <div class="es"><div class="dy">Dia 7</div><div class="et">Case Internacional</div><div class="ed">Rabobank: 300 auditores autônomos sem TI.</div><div style="margin-top:8px"><span class="bge bg-gold" style="10.4px">→ Próximo</span></div></div>
+    <div class="es"><div class="dy">Dia 15</div><div class="et">Convite Webinar</div><div class="ed">Webinar ao vivo com Gemau Halla — vagas limitadas.</div></div>
+    <div class="es"><div class="dy">Dia 30</div><div class="et">Demo Personalizada</div><div class="ed">30 min com Josi para Business Case ao vivo.</div></div>
+  </div>
+  <div class="etabs">
+    <div class="etab done" onclick="showE('e1')">✓ E-mail 1 — Dia 0</div>
+    <div class="etab on" onclick="showE('e2')">E-mail 2 — Dia 7</div>
+    <div class="etab" onclick="showE('e3')">E-mail 3 — Dia 15</div>
+    <div class="etab" onclick="showE('e4')">E-mail 4 — Dia 30</div>
+  </div>
+  <div class="ep" id="e1">
+    <div style="background:var(--gp);border:1px solid var(--gb);border-radius:8px;padding:11px 15px;margin-bottom:11px;font-size:13.9px;color:var(--green)">✅ <strong>E-mail já enviado.</strong> Acompanhe abertura e clique para segmentar o próximo envio.</div>
+    <div class="epr"><div class="ehd"><div class="em"><div><strong>De:</strong> Ericka Patricia · HupData &lt;ericka@hupdata.com&gt;</div><div><strong>Assunto:</strong> ✅ Material exclusivo do AuditNext + seu guia KNIME para auditores</div></div><span class="bge bg-green">✓ Enviado</span></div><div class="ebo"><h3>Obrigado por fazer parte do AuditNext 2026.</h3><p>Foi incrível compartilhar o palco com você e mais 299 profissionais repensando o futuro da auditoria interna no Brasil.</p><div class="hl">📄 <strong>Cheat Sheet KNIME para Auditores</strong> — guia rápido com principais nós e fluxos.<br><br>🎥 <strong>Gravação da apresentação</strong> — visão geral do KNIME Business Hub com os cases ao vivo.</div><p>Mostramos como times de auditoria estão reduzindo em até <strong>85% o tempo de execução</strong> e multiplicando por 4× o número de entregas anuais.</p><a class="cta-btn" href="#">→ Acessar material do AuditNext</a><div class="esig">Ericka Patricia Silva · Analista de Dados · HupData</div></div></div>
+  </div>
+  <div class="ep on" id="e2">
+    <div class="epr"><div class="ehd"><div class="em"><div><strong>De:</strong> Ericka Patricia · HupData &lt;ericka@hupdata.com&gt;</div><div><strong>Assunto:</strong> Como 300 auditores do Rabobank passaram a trabalhar com dados sozinhos (sem TI)</div><div><strong>Para:</strong> Priorizar quem abriu o E-mail 1</div></div><span class="bge bg-gold">→ Próximo</span></div><div class="ebo"><h3>300 auditores. 1 plataforma. Zero dependência de TI.</h3><p>O Rabobank tinha um problema familiar: auditores qualificados, presos em Excel e 100% dependentes de TI para qualquer análise complexa.</p><div class="hl">✅ 300 auditores rodando análises de anomalia <strong>de forma independente</strong><br>✅ Tempo reduzido de dias para horas<br>✅ Cobertura de 100% das transações (antes: 5%)</div><p>O mais relevante: os auditores do Rabobank <strong>não tinham background técnico</strong>. Interface visual — sem código.</p><p><strong>Qual seria o impacto se você pudesse cobrir 100% das transações em vez de amostras?</strong></p><a class="cta-btn" href="#">→ Ver o case completo</a><div class="esig">Ericka Patricia Silva · Analista de Dados · HupData</div></div></div>
+    <div class="snote"><strong>💡 Instrução:</strong> Dia 7. Priorizar quem abriu o E-mail 1. Para quem não abriu: reenviar E-mail 1 com assunto diferente. Abertura + clique = MQL → Diana alerta Josi.</div>
+  </div>
+  <div class="ep" id="e3">
+    <div class="epr"><div class="ehd"><div class="em"><div><strong>De:</strong> Ericka Patricia · HupData &lt;ericka@hupdata.com&gt;</div><div><strong>Assunto:</strong> [VAGAS LIMITADAS] Webinar ao vivo: Auditoria Contínua com KNIME — Gemau Halla (Odebrecht)</div></div><span class="bge bg-blue">Dia 15</span></div><div class="ebo"><h3>Você viu o pitch no AuditNext. Agora veja funcionando ao vivo.</h3><p>No evento mostramos os slides. No webinar, você vai ver o KNIME Business Hub funcionando em tempo real com um caso real de auditoria.</p><div class="hl">🎙 <strong>Webinar: Auditoria Contínua com KNIME na Prática</strong><br>📅 [Data a confirmar] · 10h–11h30<br>🎤 Gemau Halla (Odebrecht) + Ericka Patricia (HupData)<br><br>→ Detecção de anomalias ao vivo · ROI Calculator · Case Odebrecht</div><p>Vagas limitadas a 150 participantes.</p><a class="cta-btn" href="#">→ Garantir minha vaga agora</a><div class="esig">Ericka Patricia Silva · Analista de Dados · HupData</div></div></div>
+    <div class="snote"><strong>💡 Instrução:</strong> Dia 15. Toda a base. Inscrição = MQL automático → Diana alerta Josi imediatamente. Lembrete 48h antes. Confirmar data com Gemau antes de enviar.</div>
+  </div>
+  <div class="ep" id="e4">
+    <div class="epr"><div class="ehd"><div class="em"><div><strong>De:</strong> Josi · HupData &lt;josi@hupdata.com&gt;</div><div><strong>Assunto:</strong> [Nome], 30 minutos que podem mudar como seu time de auditoria trabalha</div><div><strong>Para:</strong> MQLs qualificados — personalizado por empresa</div></div><span class="bge bg-red">Dia 30</span></div><div class="ebo"><h3>[Nome], você esteve no AuditNext. Agora quero ver o seu processo.</h3><p>Ao longo deste mês você acompanhou o case do Rabobank, viu o webinar com Gemau Halla e entendeu como times cortam 85% do tempo operacional.</p><div class="hl">Sem pitch genérico. Sem 60 slides.<br><br>Você me conta quais processos seu time repete manualmente toda semana.<br>Eu mostro como ficam no KNIME — ao vivo, na sua tela.<br>E entrego um Business Case com os números do seu contexto.</div><a class="cta-btn" href="#">→ Agendar 30min com a Josi</a><div class="esig">Josi · Consultora Comercial · HupData</div></div></div>
+    <div class="snote"><strong>💡 Instrução:</strong> E-mail da Josi (mudança de remetente aumenta resposta). Apenas MQLs qualificados. Para Sany, Magalu, Cimed, Copa: ligar ANTES do e-mail chegar.</div>
+  </div>
+</div>
+
+<!-- P12: WEBINARS -->
+<div class="pn" id="p12">
+  <div class="sh"><div><h2>Roteiros de Webinar</h2><p>3 webinars em 90 dias · KNIME convidado no #3 · Gravados para Academy PT</p></div><div class="sh-r">Meta: 150 inscritos/webinar</div></div>
+  <div class="wtabs">
+    <div class="wtab on" onclick="showW('w1')">Webinar #1 — Caso Odebrecht</div>
+    <div class="wtab" onclick="showW('w2')">Webinar #2 — ROI & Escala</div>
+    <div class="wtab" onclick="showW('w3')">Webinar #3 — C-Level + KNIME</div>
+  </div>
+  <div class="wp on" id="w1"><div class="wcard"><div class="wbn"><div class="wn">Webinar #1 · Junho 2026 · HupData</div><div class="wt">Auditoria Contínua com KNIME:<br>O Caso Real do Odebrecht</div><div class="wm"><span>⏱ 90 min</span><span>👥 Analistas e Heads</span><span>🎤 Gemau Halla + Ericka</span></div></div><div class="wbody">
+    <div class="agi"><div class="at">00:00</div><div><div class="ah">Abertura — Ericka</div><div class="ad2">HupData como Elite Partner KNIME Brasil. Contexto AuditNext. Enquete: "Qual o maior gargalo do seu time hoje?"</div><span class="atg" style="background:var(--bp);color:var(--blue)">Engajamento</span></div></div>
+    <div class="agi"><div class="at">10:00</div><div><div class="ah">O desafio: auditoria manual em escala — Gemau</div><div class="ad2">Cenário antes do KNIME: volume de dados, planilhas, cobertura parcial, risco operacional. Dados reais.</div><span class="atg" style="background:var(--rp);color:var(--red)">Problema real</span></div></div>
+    <div class="agi"><div class="at">25:00</div><div><div class="ah">A solução: automação ao vivo — Gemau</div><div class="ad2">Demo real dos workflows: SAP → normalização → regras de auditoria → relatório. Resultado quantificado.</div><span class="atg" style="background:var(--gp);color:var(--green)">Demo ao vivo</span></div></div>
+    <div class="agi"><div class="at">50:00</div><div><div class="ah">KNIME Business Hub — Ericka</div><div class="ad2">Deploy, governança, escalabilidade. Times publicam e executam workflows sem depender de TI. Cases Rabobank, ING, Banco BV.</div><span class="atg" style="background:var(--bp);color:var(--blue)">Produto</span></div></div>
+    <div class="agi"><div class="at">65:00</div><div><div class="ah">ROI Calculator ao vivo — Ericka</div><div class="ad2">Perguntar ao chat: horas/semana em processos manuais? Calcular ao vivo. Business Case para empresa de R$200M.</div><span class="atg" style="background:var(--gold-p);color:var(--gold-l)">ROI</span></div></div>
+    <div class="agi"><div class="at">75:00</div><div><div class="ah">Q&A + CTA — ambos</div><div class="ad2">Diagnóstico gratuito 30min + piloto 30 dias. CTA: agendar com Josi. Divulgar Webinar #2 e eBook.</div><span class="atg" style="background:var(--rp);color:var(--red)">Conversão</span></div></div>
+  </div></div></div>
+  <div class="wp" id="w2"><div class="wcard"><div class="wbn" style="background:linear-gradient(135deg,#0A1320,#180A18)"><div class="wn">Webinar #2 · Julho 2026 · HupData</div><div class="wt">De 85% a 4×: Os Números Reais<br>da Automação em Auditoria</div><div class="wm"><span>⏱ 75 min</span><span>👥 Heads e Gestores</span><span>🎤 Ericka + cliente case ao vivo</span></div></div><div class="wbody">
+    <div class="agi"><div class="at">00:00</div><div><div class="ah">Os números que importam</div><div class="ad2">Benchmarks: tempo em coleta vs análise. Enquete ao vivo com dados da audiência.</div><span class="atg" style="background:var(--bp);color:var(--blue)">Contexto</span></div></div>
+    <div class="agi"><div class="at">10:00</div><div><div class="ah">Case ao vivo: 1º cliente fechado desta vertical</div><div class="ad2">Cliente apresenta antes/depois em números reais. Processo, tempo de implementação, resultado mensurável.</div><span class="atg" style="background:var(--gp);color:var(--green)">Case real</span></div></div>
+    <div class="agi"><div class="at">30:00</div><div><div class="ah">Como construir o Business Case para sua diretoria</div><div class="ad2">Metodologia HupData ao vivo: entradas (horas, auditores, custo/h) → saídas (economia, payback, cobertura).</div><span class="atg" style="background:var(--gold-p);color:var(--gold-l)">Ferramenta</span></div></div>
+    <div class="agi"><div class="at">50:00</div><div><div class="ah">Roadmap: 4 fases de implementação</div><div class="ad2">Diagnóstico → MVP (1 processo) → Fábrica de automação → Hub de agentes. Tempo e custo de cada fase.</div><span class="atg" style="background:var(--bp);color:var(--blue)">Produto</span></div></div>
+    <div class="agi"><div class="at">60:00</div><div><div class="ah">Q&A + eBook + CTA</div><div class="ad2">Participantes recebem eBook + template Business Case. CTA: diagnóstico com Josi. Divulgar Webinar #3.</div><span class="atg" style="background:var(--rp);color:var(--red)">Conversão</span></div></div>
+  </div></div></div>
+  <div class="wp" id="w3"><div class="wcard"><div class="wbn" style="background:linear-gradient(135deg,#080A1A,#00100A)"><div class="wn">Webinar #3 · Agosto 2026 · HupData co-branded com KNIME</div><div class="wt">Auditoria Orientada por Dados:<br>A Visão dos C-Levels que Já Decidiram</div><div class="wm"><span>⏱ 60 min</span><span>👥 CFO, CEO, CAE, COO</span><span>🎤 Especialista KNIME + Marcus</span></div></div><div class="wbody">
+    <div class="agi"><div class="at">00:00</div><div><div class="ah">O custo invisível da auditoria manual — Marcus</div><div class="ad2">Risco de cobertura parcial, inconsistência e incapacidade de escalar. Dados do mercado GRC Brasil.</div><span class="atg" style="background:var(--rp);color:var(--red)">Risco</span></div></div>
+    <div class="agi"><div class="at">12:00</div><div><div class="ah">Perspectiva global — Especialista KNIME convidado</div><div class="ad2">Tendências: auditoria contínua, AI-assisted testing. Cases ING, Rabobank, Tata Steel — foco em decisão executiva.</div><span class="atg" style="background:var(--bp);color:var(--blue)">Global</span></div></div>
+    <div class="agi"><div class="at">30:00</div><div><div class="ah">O modelo brasileiro — Marcus</div><div class="ad2">HupData adapta para contexto regulatório BR. Cases locais. ROI em 12 meses. Plataforma + Consultoria + Certificação.</div><span class="atg" style="background:var(--gp);color:var(--green)">Modelo</span></div></div>
+    <div class="agi"><div class="at">45:00</div><div><div class="ah">Lançamento: Certificação KNIME para Auditores</div><div class="ad2">Certificação co-branded HupData × KNIME. Primeira turma exclusiva para participantes do webinar.</div><span class="atg" style="background:var(--gold-p);color:var(--gold-l)">Lançamento</span></div></div>
+    <div class="agi"><div class="at">52:00</div><div><div class="ah">CTA executivo: Diagnóstico com Marcus</div><div class="ad2">Sessão de 45 min para mapear oportunidades e construir business case para o board. 5 vagas/mês.</div><span class="atg" style="background:var(--rp);color:var(--red)">Conversão</span></div></div>
+  </div></div></div>
+</div>
+
+<!-- P13: SHORTS -->
+<div class="pn" id="p13">
+  <div class="sh"><div><h2>Short Videos — KNIME Academy</h2><p>4 shorts originais + protocolo Webinar→Shorts · Ericka grava · Huxley legenda · Silene distribui</p></div><div class="sh-r">Academy PT · LinkedIn · Instagram Reels</div></div>
+  <div class="g2">
     <div>
-      <div class="ub-title">Prioridade máxima — Sprint 2 (16/Jun–04/Jul)</div>
-      <div class="ub-text">Precisamos fechar <strong>1 deal até 27/Jun</strong> e <strong>1 deal até 04/Jul</strong>. As 4 contas com proposta Hub ativa (Sany, Magalu, Cimed, Copa Energia) são o foco. Josi prioriza follow-up diário. Huxley gera conteúdo 3x/semana. Diana qualifica e prioriza leads inbound em paralelo.</div>
+      <div class="sv"><h4>🎯 Short #1 — "Como automação traz resultados"</h4><p>Vídeo de abertura da trilha. Antes/depois de um processo de auditoria: semanas de planilha → minutos com KNIME. 85% de redução como âncora. Câmera + tela.</p><div class="tags"><span class="ag a-j">Ericka apresenta</span><span class="ag a-h">🤖 Huxley roteiro</span></div></div>
+      <div class="sv"><h4>📊 Short #2 — "No Excel é assim, no KNIME é assim"</h4><p>Comparação visual lado a lado: VLOOKUP manual vs resultado automático. Ganho: 6h → 8min. Sem código. Sem TI. Screen recording ao vivo.</p><div class="tags"><span class="ag a-j">Ericka · screen recording</span></div></div>
+      <div class="sv"><h4>🔍 Short #3 — "Primeiros passos: meu primeiro workflow"</h4><p>Tutorial hands-on 5 min: planilha → filtro de anomalia → relatório. Desmistificar para auditor sem perfil técnico.</p><div class="tags"><span class="ag a-j">Ericka · screen recording</span></div></div>
+      <div class="sv"><h4>🏛️ Short #4 — "Exemplos de governança com o KNIME"</h4><p>KNIME Hub: versionamento, rastreabilidade, trilha de auditoria. Argumento para ANVISA, ANEEL e compliance bancário.</p><div class="tags"><span class="ag a-j">Ericka · foco no Hub</span></div></div>
     </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════
-       FUNIL VISUAL
-  ════════════════════════════════════════ -->
-  <div class="funil-wrap">
-
-    <div class="funil-stage" onclick="selectStage('topo')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--blue)"></div>
-        <div class="fs-num">Etapa 01</div>
-        <div class="fs-name">Topo<br>Consciência</div>
-        <div class="fs-count" style="color:var(--blue)">645</div>
-        <div class="fs-desc">Inscritos AuditNext + leads inbound Diana + audiência Huxley</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--blue)"></div></div>
-      </div>
-      <div class="fs-arrow"></div>
-    </div>
-
-    <div class="funil-stage" onclick="selectStage('contato')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--purple)"></div>
-        <div class="fs-num">Etapa 02</div>
-        <div class="fs-name">Contato<br>Inicial</div>
-        <div class="fs-count" style="color:var(--purple)">300</div>
-        <div class="fs-desc">Presentes no evento + contatos via e-mail / LinkedIn / Teams</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:46%;background:var(--purple)"></div></div>
-      </div>
-      <div class="fs-arrow"></div>
-    </div>
-
-    <div class="funil-stage" onclick="selectStage('nurture')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--teal)"></div>
-        <div class="fs-num">Etapa 03</div>
-        <div class="fs-name">Nutrição<br>& Qualificação</div>
-        <div class="fs-count" style="color:var(--teal)">80<span style="font-size:14px;color:var(--muted)">±</span></div>
-        <div class="fs-desc">Abriram e-mails, assistiram webinar, engajaram com conteúdo</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:28%;background:var(--teal)"></div></div>
-      </div>
-      <div class="fs-arrow"></div>
-    </div>
-
-    <div class="funil-stage" onclick="selectStage('reuniao')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--orange)"></div>
-        <div class="fs-num">Etapa 04</div>
-        <div class="fs-name">Reunião<br>& Demo</div>
-        <div class="fs-count" style="color:var(--orange)">7+</div>
-        <div class="fs-desc">Reuniões realizadas + demos agendadas. Algumas já evoluíram</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:12%;background:var(--orange)"></div></div>
-      </div>
-      <div class="fs-arrow"></div>
-    </div>
-
-    <div class="funil-stage" onclick="selectStage('proposta')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--gold)"></div>
-        <div class="fs-num">Etapa 05</div>
-        <div class="fs-name">Proposta<br>Ativa</div>
-        <div class="fs-count" style="color:var(--gold-l)">4</div>
-        <div class="fs-desc">Sany · Magalu · Cimed · Copa Energia. Meta: 30 propostas em 2026</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:8%;background:var(--gold)"></div></div>
-      </div>
-      <div class="fs-arrow"></div>
-    </div>
-
-    <div class="funil-stage" onclick="selectStage('fechamento')">
-      <div class="fs-inner">
-        <div class="fs-stripe" style="background:var(--green)"></div>
-        <div class="fs-num">Etapa 06</div>
-        <div class="fs-name">Fechamento<br>& Expansão</div>
-        <div class="fs-count" style="color:var(--green)">0→15</div>
-        <div class="fs-desc">Meta 2026: 15 deals fechados. Sprint 2: 2 fechamentos urgentes</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:3%;background:var(--green)"></div></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- STAGE SELECTOR -->
-  <div class="stage-selector">
-    <div class="ss-btn active" id="btn-topo" onclick="selectStage('topo')" style="color:var(--blue);border-color:rgba(74,143,224,0.4);background:var(--blue-p)">01 · Topo</div>
-    <div class="ss-btn" id="btn-contato" onclick="selectStage('contato')">02 · Contato Inicial</div>
-    <div class="ss-btn" id="btn-nurture" onclick="selectStage('nurture')">03 · Nutrição</div>
-    <div class="ss-btn" id="btn-reuniao" onclick="selectStage('reuniao')">04 · Reunião & Demo</div>
-    <div class="ss-btn" id="btn-proposta" onclick="selectStage('proposta')">05 · Proposta Ativa</div>
-    <div class="ss-btn" id="btn-fechamento" onclick="selectStage('fechamento')">06 · Fechamento</div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 01 — TOPO
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel active" id="panel-topo">
-    <div class="sh">
-      <div>
-        <h2>Etapa 01 · Topo — Consciência & Atração</h2>
-        <p>Gerar visibilidade para o ICP de Auditoria & Tax. Base: 645 inscritos AuditNext + leads inbound contínuos via Diana</p>
-      </div>
-      <div class="sh-right">Huxley: 3 posts/semana · Diana: 570+ leads monitorados</div>
-    </div>
-
-    <div class="g3">
-      <div class="card">
-        <div class="card-title"><div class="ib ib-purple">✍️</div>Conteúdo LinkedIn</div>
-        <div class="card-sub">Huxley gera — Silene aprova — Buffer publica</div>
-        <div class="action-item">
-          <div class="ai-title">5 pilares editoriais ativos para Auditoria</div>
-          <div class="ai-desc">Compliance Brasil, Automação de Auditoria, Monitoramento Contínuo, Self-Service Analytics, Governança de IA. Score médio 90/100.</div>
-          <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley</span><span class="agent agent-manual">Silene aprova</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">24 tópicos na fila · publicação seg/qua/sex</div>
-          <div class="ai-desc">Posts com dados do Brasil 2026. Abertura com dado concreto. Vocabulário operacional do auditor. 3 canais: LinkedIn, Instagram, Facebook.</div>
-          <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley automático</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-blue">📣</div>LinkedIn Ads</div>
-        <div class="card-sub">Campanha paga segmentada para GRC+A</div>
-        <div class="action-item">
-          <div class="ai-title">Segmentação: cargo Audit/Risk/Compliance</div>
-          <div class="ai-desc">Diretores e Heads de Auditoria, CFO, CAE. Empresas +R$100M faturamento. Regiões: SP, RJ, MG, RS.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Silene executa</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Criativos baseados nos posts Huxley de maior engajamento</div>
-          <div class="ai-desc">Reutilizar os posts com score 90+ aprovados como anúncios. Testar 2 variações de headline por semana.</div>
-          <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley gera</span><span class="agent agent-manual">Silene adapta</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-teal">🔍</div>Diana — Prospecção outbound</div>
-        <div class="card-sub">Agente ativa no Teams · 570+ inbound + 30 outbound</div>
-        <div class="action-item">
-          <div class="ai-title">"Diana, me dá os melhores leads de auditoria desta semana"</div>
-          <div class="ai-desc">Diana analisa o banco de dados, verifica Pipedrive e entrega card com nome, cargo, score e ângulo de abordagem por setor.</div>
-          <div class="ai-tags"><span class="agent agent-diana">📡 Diana automático</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Monitorar leads do AuditNext não contatados ainda</div>
-          <div class="ai-desc">Consultar Diana: "Tem leads do setor de auditoria que ainda não foram abordados?" — priorizar os de maior score.</div>
-          <div class="ai-tags"><span class="agent agent-diana">📡 Diana</span><span class="agent agent-manual">Josi executa</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><div class="ib ib-gold">⚡</div>Ações imediatas — Topo do Funil</div>
-      <div class="card-sub">Implementar esta semana</div>
-      <div class="g2" style="margin-top:14px;margin-bottom:0">
-        <div>
-          <div class="li"><span class="mk">01</span>Ativar Huxley ICP Auditoria: 3x/semana (seg/qua/sex) — já configurado, confirmar com Silene</div>
-          <div class="li"><span class="mk">02</span>Silene revisar fila de 24 tópicos e aprovar os primeiros 9 para publicação imediata</div>
-          <div class="li"><span class="mk">03</span>Josi acessar Diana no Teams toda manhã: "quem abordar hoje?" — rotina diária</div>
-        </div>
-        <div>
-          <div class="li"><span class="mk-b">04</span>Lançar campanha LinkedIn Ads com foco no segmento Auditoria & Tax</div>
-          <div class="li"><span class="mk-b">05</span>Publicar post de case Odebrecht (Gemau Halla) como âncora de autoridade</div>
-          <div class="li"><span class="mk-b">06</span>Criar landing page do eBook "KNIME para Auditores" como isca de captura</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 02 — CONTATO INICIAL
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel" id="panel-contato">
-    <div class="sh">
-      <div>
-        <h2>Etapa 02 · Contato Inicial — Primeiro Engajamento</h2>
-        <p>300 presentes no AuditNext + leads frios ainda não contatados. E-mail 1 já foi disparado.</p>
-      </div>
-      <div class="sh-right">E-mail 2 → próximo a disparar · Dia 7</div>
-    </div>
-
-    <div class="g2">
-      <div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="card-title"><div class="ib ib-gold">📧</div>Sequência de e-mails em andamento</div>
-          <div class="card-sub">645 contatos · E-mail 1 já enviado</div>
-          <div class="action-item">
-            <div class="ai-head"><div class="ai-title">✅ E-mail 1 (Dia 0) — Enviado</div><span style="font-size:10px;color:var(--green)">✓ Feito</span></div>
-            <div class="ai-desc">Recap AuditNext + Cheat Sheet KNIME para Auditores.</div>
-          </div>
-          <div class="action-item" style="border-color:var(--gold-b);background:var(--gold-pale)">
-            <div class="ai-head"><div class="ai-title" style="color:var(--gold-l)">→ E-mail 2 (Dia 7) — Próximo</div><span style="font-size:10px;color:var(--gold-l)">Urgente</span></div>
-            <div class="ai-desc">Case Rabobank: 300 auditores autônomos sem TI. Enviar para quem abriu o E-mail 1 primeiro.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Ericka dispara</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">E-mail 3 (Dia 15) — Convite Webinar</div>
-            <div class="ai-desc">Webinar ao vivo com Gemau Halla (Odebrecht). Inscrição = MQL automático → Diana alerta Josi.</div>
-            <div class="ai-tags"><span class="agent agent-diana">📡 Diana monitora</span><span class="agent agent-manual">Ericka dispara</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">E-mail 4 (Dia 30) — Demo personalizada</div>
-            <div class="ai-desc">Enviado pela Josi. Personalizado por empresa. CTA: agendar 30min para Business Case ao vivo.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Josi envia</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="card-title"><div class="ib ib-teal">📡</div>Diana — Contato via LinkedIn & Teams</div>
-          <div class="card-sub">Abordagem fria com inteligência de contexto</div>
-          <div class="action-item">
-            <div class="ai-title">"Como abordar um Head de Auditoria de energia?"</div>
-            <div class="ai-desc">Diana retorna: dor principal, argumento com case (Copa/Energisa), script de primeira mensagem e verificação no Pipedrive.</div>
-            <div class="ai-tags"><span class="agent agent-diana">📡 Diana</span><span class="agent agent-manual">Josi executa</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">Leads que não responderam ao e-mail</div>
-            <div class="ai-desc">Diana identifica quem abriu mas não clicou → Josi aborda via LinkedIn com mensagem personalizada por setor.</div>
-            <div class="ai-tags"><span class="agent agent-diana">📡 Diana filtra</span><span class="agent agent-manual">Josi aborda</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">Verificação de histórico antes de ligar</div>
-            <div class="ai-desc">"A empresa X já está no Pipedrive?" → Diana retorna histórico, deal aberto e SDR responsável. Evita abordar lead em negociação.</div>
-            <div class="ai-tags"><span class="agent agent-diana">📡 Diana automático</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><div class="ib ib-gold">⚡</div>Ações imediatas — Contato Inicial</div>
-      <div class="card-sub">Esta semana</div>
-      <div class="g2" style="margin-top:14px;margin-bottom:0">
-        <div>
-          <div class="li"><span class="mk">01</span>Disparar E-mail 2 para quem abriu o E-mail 1 (engajados) — Ericka</div>
-          <div class="li"><span class="mk">02</span>Reenviar E-mail 1 com assunto alternativo para quem não abriu — Ericka</div>
-          <div class="li"><span class="mk">03</span>Josi usar Diana toda manhã: identificar leads de auditoria não contatados</div>
-        </div>
-        <div>
-          <div class="li"><span class="mk-b">04</span>Josi abordar via LinkedIn os 50+ presentes no AuditNext ainda sem resposta</div>
-          <div class="li"><span class="mk-b">05</span>Confirmar data do Webinar #1 (Gemau Halla) antes de disparar E-mail 3</div>
-          <div class="li"><span class="mk-b">06</span>Registrar todos contatos no Pipedrive com tag "AuditNext2026" + prazo de follow-up</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 03 — NUTRIÇÃO
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel" id="panel-nurture">
-    <div class="sh">
-      <div>
-        <h2>Etapa 03 · Nutrição & Qualificação — MQL</h2>
-        <p>Leads que engajaram: abriram e-mails, curtiram posts, participarão do webinar. Converter em oportunidade real.</p>
-      </div>
-      <div class="sh-right">Webinar #1 · eBook · Academy PT</div>
-    </div>
-
-    <div class="g3">
-      <div class="card">
-        <div class="card-title"><div class="ib ib-green">🎙</div>Webinar #1 — Caso Odebrecht</div>
-        <div class="card-sub">Principal ativação de MQL desta etapa</div>
-        <div class="action-item">
-          <div class="ai-title">Inscrição no webinar = MQL automático</div>
-          <div class="ai-desc">Diana alerta Josi imediatamente quando uma empresa-alvo se inscreve. Josi liga antes do webinar para construir relacionamento.</div>
-          <div class="ai-tags"><span class="agent agent-diana">📡 Diana alerta</span><span class="agent agent-manual">Josi liga</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">ROI Calculator ao vivo durante o webinar</div>
-          <div class="ai-desc">Perguntar ao chat: quantas horas/semana em processos manuais? Calcular ao vivo o retorno estimado para o setor do participante.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Ericka apresenta</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Converter webinar em shorts para o Academy</div>
-          <div class="ai-desc">Após cada webinar: recortar os melhores trechos em vídeos de 2–5 min por tema. Publicar no Academy PT como microaulas indexadas por tópico (ex: "Detecção de anomalias", "ROI ao vivo", "Case Odebrecht").</div>
-          <div class="ai-tags"><span class="agent agent-manual">Ericka edita · Silene publica</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-purple">📘</div>eBook co-branded KNIME</div>
-        <div class="card-sub">"KNIME para Auditores Internos" — isca de qualificação · <span style="color:var(--green);font-size:10px">✓ Produzido</span></div>
-        <div class="action-item">
-          <div class="ai-title">Download = formulário de qualificação</div>
-          <div class="ai-desc">Landing page com formulário: nome, empresa, cargo, maior desafio de auditoria. Respostas alimentam scoring no Pipedrive via Diana.</div>
-          <div class="ai-tags"><span class="agent agent-diana">📡 Diana registra</span><span class="agent agent-manual">Silene publica</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Huxley gera sequência de divulgação do eBook</div>
-          <div class="ai-desc">Posts específicos sobre o eBook nos 3 canais. Sequência de 3 posts em dias alternados para maximizar downloads.</div>
-          <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley gera</span><span class="agent agent-manual">Silene aprova</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-teal">🎓</div>KNIME Academy — Trilha Auditoria</div>
-        <div class="card-sub">Certificação co-branded · Lançamento Webinar #3</div>
-        <div class="action-item">
-          <div class="ai-title">Analistas que concluem trilha = campeão interno</div>
-          <div class="ai-desc">Usuário vira defensor interno da compra do Hub. Diana identifica quando empresa com trilha ativa é lead não contatado ainda.</div>
-          <div class="ai-tags"><span class="agent agent-diana">📡 Diana monitora</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Certificação como argumento de upsell</div>
-          <div class="ai-desc">Oferecer certificação para time de auditoria do cliente como parte do pacote Hub. Diferencial competitivo com o mercado.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Josi inclui na proposta</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SHORT VIDEOS -->
-    <div class="card" style="margin-bottom:12px">
-      <div class="card-title"><div class="ib ib-red">🎬</div>Short Videos — KNIME Academy · Estratégia de conteúdo educativo</div>
-      <div class="card-sub">Vídeos de 2–5 min · Formato microaula · Publicar no Academy PT e LinkedIn · Ericka apresenta · Silene distribui</div>
-      <div class="g2" style="margin-top:14px;margin-bottom:0">
-        <div>
-          <div class="action-item">
-            <div class="ai-title">🎯 "Como automação pode trazer resultados em auditoria"</div>
-            <div class="ai-desc">Vídeo de abertura da trilha. Mostrar o "antes e depois" de um processo de auditoria: semanas de planilha → minutos com KNIME. Usar números do case IGT (85% redução) como âncora.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Ericka · script pronto do Huxley</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">📊 "No Excel é assim — no KNIME é assim"</div>
-            <div class="ai-desc">Comparação visual lado a lado: auditor fazendo VLOOKUP manual no Excel vs o mesmo resultado gerado automaticamente no KNIME. Ganho: 6h → 8min. Sem código. Sem TI.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Ericka apresenta ao vivo na tela</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">🔍 "Primeiros passos: meu primeiro workflow de auditoria"</div>
-            <div class="ai-desc">Tutorial hands-on de 5 min: conectar uma planilha de transações, aplicar filtro de anomalia, gerar relatório. Objetivo: desmistificar para o auditor sem perfil técnico.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Ericka · screen recording</span></div>
-          </div>
-        </div>
-        <div>
-          <div class="action-item">
-            <div class="ai-title">🏛️ "Exemplos de governança com o KNIME"</div>
-            <div class="ai-desc">Mostrar o KNIME Business Hub: trilha de auditoria, versionamento de workflows, quem rodou o quê e quando. Rastreabilidade total — argumento direto para ANVISA, ANEEL, compliance bancário.</div>
-            <div class="ai-tags"><span class="agent agent-manual">Ericka · foco em Hub</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">✂️ Webinar → Shorts: cortes automáticos por tema</div>
-            <div class="ai-desc">Após cada webinar: recortar em 4–6 shorts temáticos (ex: "Detecção de anomalias ao vivo", "ROI calculado na hora", "Case Odebrecht em 3 min"). Publicar no Academy + LinkedIn + Instagram Reels.</div>
-            <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley gera legenda/post</span><span class="agent agent-manual">Silene publica</span></div>
-          </div>
-          <div class="action-item">
-            <div class="ai-title">📐 Formato e cadência de publicação</div>
-            <div class="ai-desc">Academy PT: 1 short/semana em sequência de trilha. LinkedIn: 2 shorts/mês como conteúdo orgânico. Instagram Reels: mesmo vídeo com legenda adaptada pelo Huxley. Todos com CTA para o eBook ou webinar.</div>
-            <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley adapta legenda</span><span class="agent agent-manual">Silene agenda</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><div class="ib ib-gold">⚡</div>Ações imediatas — Nutrição</div>
-      <div class="card-sub">Próximos 15 dias</div>
-      <div class="g2" style="margin-top:14px;margin-bottom:0">
-        <div>
-          <div class="li"><span class="mk">01</span>Confirmar data e convidado (Gemau Halla) do Webinar #1 · marcar no calendário</div>
-          <div class="li" style="opacity:.5"><span class="mk-g">02</span><span style="text-decoration:line-through;color:var(--faint)">eBook "KNIME para Auditores" — Ericka + Silene</span> <span style="color:var(--green);font-size:10px;font-weight:600">✓ Feito</span></div>
-          <div class="li"><span class="mk">03</span>Huxley gerar sequência de posts de divulgação do webinar e do eBook</div>
-        </div>
-        <div>
-          <div class="li"><span class="mk-b">04</span>Ericka gravar Short #1 ("Como automação traz resultados") — roteiro básico, tela + câmera</div>
-          <div class="li"><span class="mk-b">05</span>Ericka gravar Short #2 ("No Excel é assim, no KNIME é assim") — comparação ao vivo</div>
-          <div class="li"><span class="mk-b">06</span>Silene publicar shorts no Academy PT e agendar no LinkedIn · Huxley gera as legendas</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 04 — REUNIÃO & DEMO
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel" id="panel-reuniao">
-    <div class="sh">
-      <div>
-        <h2>Etapa 04 · Reunião & Demo — Oportunidade</h2>
-        <p>7+ reuniões realizadas. Algumas evoluirão a curto prazo, outras a médio ou longo prazo. Foco em avançar os de curto.</p>
-      </div>
-      <div class="sh-right">Marcel monitora deals · Diana qualifica leads</div>
-    </div>
-
-    <div class="urgency-banner" style="border-color:var(--gold-b);background:var(--gold-pale)">
-      <div class="ub-icon">⚠️</div>
-      <div>
-        <div class="ub-title" style="color:var(--gold-l)">Classificação das reuniões realizadas</div>
-        <div class="ub-text">Cada reunião deve ser classificada em: <strong>Curto prazo</strong> (fechar em 30 dias), <strong>Médio prazo</strong> (60–90 dias), <strong>Longo prazo</strong> (+90 dias) ou <strong>Sem interesse</strong>. Marcel monitora o status no Pipedrive e alerta Josi quando um deal está atrasado.</div>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div class="card">
-        <div class="card-title"><div class="ib ib-red">🎯</div>Leads de curto prazo — ação agora</div>
-        <div class="card-sub">Reuniões realizadas com potencial de fechar em até 30 dias</div>
-        <div class="action-item">
-          <div class="ai-title">Marcel: "Qual o status do deal [empresa]?" antes de ligar</div>
-          <div class="ai-desc">Marcel verifica Pipedrive, histórico e última atividade do deal. Josi chega na ligação com contexto completo e próximo passo claro.</div>
-          <div class="ai-tags"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-manual">Josi executa</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Demo Hub ao vivo — foco em 1 processo do cliente</div>
-          <div class="ai-desc">Ericka demonstra KNIME Hub ao vivo com um processo específico da empresa. Trazer o Business Case impresso com ROI do setor do cliente.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Ericka + Josi</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Piloto gratuito 30 dias como acelerador de decisão</div>
-          <div class="ai-desc">Oferecer piloto num único processo para o cliente validar o ROI antes do contrato. Reduz risco percebido e acelera a decisão.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Marcus aprova</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-gold">📅</div>Leads de médio/longo prazo — nurture estratégico</div>
-        <div class="card-sub">Reuniões realizadas · decisão em 60–90+ dias</div>
-        <div class="action-item">
-          <div class="ai-title">Huxley nutre com conteúdo do setor específico</div>
-          <div class="ai-desc">Silene adiciona o lead ao ICP correto no Huxley. O lead recebe posts relevantes ao seu setor (financeiro, industrial, energia) organicamente.</div>
-          <div class="ai-tags"><span class="agent agent-huxley">🤖 Huxley</span><span class="agent agent-manual">Silene configura</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Marcel alerta Josi quando deal de médio prazo esfria</div>
-          <div class="ai-desc">Marcel monitora o Pipedrive a cada hora. Detecta deals sem atividade há mais de X dias e manda alerta no Teams: "Deal [empresa] parado há 15 dias — ação sugerida: ligar."</div>
-          <div class="ai-tags"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-manual">Josi liga</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Convidar para Webinar #2 e #3</div>
-          <div class="ai-desc">Webinars de ROI (Webinar #2) e C-Level com KNIME (Webinar #3) são touchpoints naturais para reativar leads de médio prazo.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Ericka inclui na lista</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><div class="ib ib-gold">⚡</div>Ações imediatas — Reunião & Demo</div>
-      <div class="card-sub">Esta semana — classificar e agir</div>
-      <div class="g2" style="margin-top:14px;margin-bottom:0">
-        <div>
-          <div class="li"><span class="mk">01</span>Josi classificar todas as 7+ reuniões: curto / médio / longo / sem interesse no Pipedrive</div>
-          <div class="li"><span class="mk">02</span>Para cada reunião de curto prazo: perguntar ao Marcel "Qual o status do deal?" antes de ligar</div>
-          <div class="li"><span class="mk">03</span>Gravar reuniões de demo e salvar no OneDrive — Marcel cria tarefas no Pipedrive automaticamente</div>
-        </div>
-        <div>
-          <div class="li"><span class="mk-b">04</span>Silene configurar Huxley para nutrir leads de médio/longo por setor específico</div>
-          <div class="li"><span class="mk-b">05</span>Marcus revisar lista de reuniões e indicar quais merecem envolvimento direto dele (C-Level)</div>
-          <div class="li"><span class="mk-b">06</span>Todos os leads de médio/longo recebem convite para Webinar #1 como próximo touchpoint</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 05 — PROPOSTA ATIVA
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel" id="panel-proposta">
-    <div class="sh">
-      <div>
-        <h2>Etapa 05 · Proposta Ativa — Negociação</h2>
-        <p>4 contas com proposta Hub enviada: Sany Group · Magalu · Cimed · Copa Energia. Foco total aqui agora.</p>
-      </div>
-      <div class="sh-right">🔴 Meta Sprint 2: fechar 2 destas 4 até 04/Jul</div>
-    </div>
-
-    <div class="urgency-banner">
-      <div class="ub-icon">🔴</div>
-      <div>
-        <div class="ub-title">Ação comercial crítica — próximos 12 dias</div>
-        <div class="ub-text">Josi deve ligar para cada uma das 4 contas esta semana. Não esperar retorno por e-mail. Marcel monitora os deals 24h e envia prioridades diárias no Teams. Marcus envolvido diretamente na Cimed (conta estratégica). Ter Business Case impresso para cada conta.</div>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div class="card">
-        <div class="card-title"><div class="ib ib-orange">🤝</div>Marcel — Suporte à negociação ativa</div>
-        <div class="card-sub">Agente comercial · monitora deals 24h · responde no Teams</div>
-        <div class="action-item">
-          <div class="ai-title">"Quais são minhas prioridades hoje?"</div>
-          <div class="ai-desc">Marcel verifica o Pipedrive a cada hora e envia até 3 prioridades diárias no Teams para Josi. Detecta deals atrasados e sugere ação concreta por conta.</div>
-          <div class="ai-tags"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">"Como lidar com objeção de preço?" / "Cliente sumiu há 2 semanas"</div>
-          <div class="ai-desc">Marcel responde com técnicas de venda validadas, scripts de reativação e argumentos específicos para o contexto do deal. Perguntar antes de ligar para cliente difícil.</div>
-          <div class="ai-tags"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-manual">Josi usa script</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Resumo automático de reuniões → tarefas no Pipedrive</div>
-          <div class="ai-desc">Após cada reunião: salvar gravação na pasta OneDrive e avisar Marcel "resuma reunião". Marcel lê, resume e cria atividades no Pipedrive automaticamente.</div>
-          <div class="ai-tags"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel automático</span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-red">🎯</div>Playbook de fechamento por conta</div>
-        <div class="card-sub">Ação específica para cada proposta ativa</div>
-        <div class="action-item">
-          <div class="ai-title">Ligar esta semana para todos os 4 decisores</div>
-          <div class="ai-desc">Não aguardar retorno por e-mail. Josi liga. Para C-Level (Cimed): Marcus lidera a ligação. Objetivo: confirmar próximo passo concreto.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Josi + Marcus</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Oferecer piloto 30 dias como acelerador de decisão</div>
-          <div class="ai-desc">Para quem está em dúvida: piloto num único processo, sem custo, com resultado mensurável em 30 dias. Reduz risco percebido.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Marcus aprova caso a caso</span></div>
-        </div>
-        <div class="action-item">
-          <div class="ai-title">Business Case Builder enviado por escrito pós-ligação</div>
-          <div class="ai-desc">Após cada ligação: enviar o Business Case personalizado em PDF com os números do setor da empresa. Ericka prepara, Josi envia.</div>
-          <div class="ai-tags"><span class="agent agent-manual">Ericka prepara · Josi envia</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       ETAPA 06 — FECHAMENTO & EXPANSÃO
-  ════════════════════════════════════════════ -->
-  <div class="detail-panel" id="panel-fechamento">
-    <div class="sh">
-      <div>
-        <h2>Etapa 06 · Fechamento & Expansão</h2>
-        <p>Meta 2026: 15 deals fechados. Sprint 2: 2 fechamentos até 04/Jul. Expansão: upsell e case de referência.</p>
-      </div>
-      <div class="sh-right">Meta: 30 propostas · 15 fechamentos · 2026</div>
-    </div>
-
-    <div class="g3">
-      <div class="card">
-        <div class="card-title"><div class="ib ib-green">✅</div>Checklists de fechamento</div>
-        <div class="card-sub">Sequência exata do processo de fechamento</div>
-        <div class="li"><span class="mk-g">01</span>Proposta aceita verbalmente → enviar contrato em 24h</div>
-        <div class="li"><span class="mk-g">02</span>Assinatura → onboarding agendado com Rodrigo (CS)</div>
-        <div class="li"><span class="mk-g">03</span>CS briefing registrado no Pipedrive com contexto da venda</div>
-        <div class="li"><span class="mk-g">04</span>Silene notificada para publicar post de boas-vindas ao cliente</div>
-        <div class="li"><span class="mk-g">05</span>Huxley ativado para produzir conteúdo do setor do novo cliente</div>
-        <div class="li"><span class="mk-g">06</span>Agendar reunião de 30 dias para coleta de resultado e case</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-purple">🚀</div>Expansão — Upsell & Referência</div>
-        <div class="card-sub">Cada cliente fechado vira motor de novos deals</div>
-        <div class="li"><span class="mk-p">01</span>Documentar case de sucesso em 30 dias com números reais</div>
-        <div class="li"><span class="mk-p">02</span>Usar case como âncora nos próximos webinars (Webinar #2)</div>
-        <div class="li"><span class="mk-p">03</span>Huxley injeta o case novo nos posts de auditoria</div>
-        <div class="li"><span class="mk-p">04</span>Identificar outras áreas da empresa que podem usar o Hub (upsell)</div>
-        <div class="li"><span class="mk-p">05</span>Pedir indicação de contato em outra empresa do setor</div>
-        <div class="li"><span class="mk-p">06</span>Convidar o cliente para co-apresentar o Webinar #2 como case</div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="ib ib-teal">📡</div>Automação pós-fechamento</div>
-        <div class="card-sub">Diana + Huxley continuam trabalhando</div>
-        <div class="li"><span class="mk-t">01</span>Diana: cliente fechado sai da fila de prospecção automaticamente</div>
-        <div class="li"><span class="mk-t">02</span>Huxley: ativar ICP do setor do cliente para gerar novos leads similares</div>
-        <div class="li"><span class="mk-t">03</span>Diana monitora expansão: "A empresa X tem outras unidades não contactadas?"</div>
-        <div class="li"><span class="mk-t">04</span>CS briefing do Rodrigo → Josi recebe alerta de oportunidade de expansão</div>
-        <div class="li"><span class="mk-t">05</span>Relatório mensal para Marcus: deals fechados, ARR, expansão e pipeline</div>
-        <div class="li"><span class="mk-t">06</span>Case do cliente enviado ao KNIME para reforçar parceria e reputação</div>
-      </div>
-    </div>
-
-    <div class="card" style="background:linear-gradient(135deg,rgba(46,171,123,0.08) 0%,rgba(200,168,75,0.05) 100%);border-color:var(--green-b)">
-      <div class="card-title" style="color:var(--green)"><div class="ib ib-green">🏆</div>Metas do ciclo de 90 dias (09/Jun → 05/Set 2026)</div>
-      <div class="g3" style="margin-top:14px;margin-bottom:0">
-        <div style="text-align:center;padding:14px;background:var(--navy-card);border-radius:8px;border:1px solid var(--border)">
-          <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:var(--red)">2</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Deals até 04/Jul<br><span style="color:var(--red);font-size:10px">Sprint 2 — crítico</span></div>
-        </div>
-        <div style="text-align:center;padding:14px;background:var(--navy-card);border-radius:8px;border:1px solid var(--border)">
-          <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:var(--gold-l)">30</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Propostas enviadas<br><span style="color:var(--gold-l);font-size:10px">até 05/Set</span></div>
-        </div>
-        <div style="text-align:center;padding:14px;background:var(--navy-card);border-radius:8px;border:1px solid var(--border)">
-          <div style="font-family:var(--font-d);font-size:28px;font-weight:800;color:var(--green)">15</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">Negócios fechados<br><span style="color:var(--green);font-size:10px">meta 2026</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       RESUMO AUTOMAÇÃO
-  ════════════════════════════════════════════ -->
-  <div class="divider"></div>
-  <div class="sh">
     <div>
-      <h2>Automação por Etapa — Diana & Huxley</h2>
-      <p>Visão consolidada de onde cada agente atua no funil</p>
+      <div class="card" style="border-color:var(--gb);background:rgba(46,171,123,.04)"><div class="ct" style="color:var(--green)"><span class="ib ig">✂️</span>Protocolo: Webinar → Shorts</div><div class="cs">Após cada webinar · 4–6 clips por tema</div>
+        <div class="li"><span class="mkg">01</span>Gravar webinar completo (Teams)</div>
+        <div class="li"><span class="mkg">02</span>Ericka identifica 4–6 trechos por tema</div>
+        <div class="li"><span class="mkg">03</span>Huxley gera legenda adaptada por canal</div>
+        <div class="li"><span class="mkg">04</span>Silene publica: Academy + LinkedIn + Instagram</div>
+      </div>
+      <div class="card"><div class="ct"><span class="ib ib2">📐</span>Cadência de distribuição</div>
+        <div class="li"><span class="mk">Academy PT</span>1 short/semana em sequência pedagógica</div>
+        <div class="li"><span class="mk">LinkedIn</span>2 shorts/mês como conteúdo orgânico</div>
+        <div class="li"><span class="mk">Instagram</span>Mesmo vídeo com legenda adaptada pelo Huxley</div>
+        <div class="li"><span class="mk">YouTube</span>Playlist "KNIME para Auditores" — referência orgânica</div>
+        <div class="li"><span class="mk">CTA</span>Todo short termina com link para eBook ou webinar</div>
+      </div>
     </div>
-    <div class="sh-right">Para discutir com o time</div>
   </div>
+</div>
 
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--blue)">01 · Topo</div>
-    <div class="auto-desc">Huxley gera 3 posts/semana (seg/qua/sex) para o ICP Auditoria Interna. Diana monitora 570+ leads inbound e 30 outbound, entregando score e ângulo de abordagem para Josi diariamente.</div>
-    <div class="auto-agent"><span class="agent agent-huxley">🤖 Huxley</span><span class="agent agent-diana">📡 Diana</span></div>
+<!-- P14: BC -->
+<div class="pn" id="p14">
+  <div class="sh"><div><h2>Business Case Builder</h2><p>Argumentário personalizado — 4 contas com proposta Hub ativa</p></div><div class="sh-r">Josi · Meta: fechar 2 em 60 dias</div></div>
+  <div class="bctabs">
+    <div class="bctab on" onclick="showBC('b1')">⚙️ Sany Group</div>
+    <div class="bctab" onclick="showBC('b2')">🛒 Magalu</div>
+    <div class="bctab" onclick="showBC('b3')">💊 Cimed</div>
+    <div class="bctab" onclick="showBC('b4')">⚡ Copa Energia</div>
   </div>
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--purple)">02 · Contato Inicial</div>
-    <div class="auto-desc">Diana verifica Pipedrive antes de cada abordagem. Identifica leads não contatados do AuditNext. Sugere script personalizado por cargo e setor. Josi usa Diana antes de cada primeira ligação.</div>
-    <div class="auto-agent"><span class="agent agent-diana">📡 Diana</span><span class="agent agent-manual">Josi executa</span></div>
-  </div>
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--teal)">03 · Nutrição</div>
-    <div class="auto-desc">Diana alerta Josi quando empresa-alvo se inscreve no webinar. Huxley nutre leads com conteúdo do setor específico. Download do eBook alimenta scoring automático no Pipedrive.</div>
-    <div class="auto-agent"><span class="agent agent-huxley">🤖 Huxley</span><span class="agent agent-diana">📡 Diana</span></div>
-  </div>
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--orange)">04 · Reunião & Demo</div>
-    <div class="auto-desc">Marcel monitora deals pós-reunião e detecta inatividade. Josi pergunta ao Marcel "Qual o status do deal?" antes de cada follow-up. Marcel resume reuniões gravadas e cria tarefas no Pipedrive automaticamente. Huxley nutre leads de médio prazo.</div>
-    <div class="auto-agent"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-huxley">🤖 Huxley</span></div>
-  </div>
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--gold-l)">05 · Proposta Ativa</div>
-    <div class="auto-desc">Marcel monitora os 4 deals com proposta ativa 24h/dia e envia prioridades diárias para Josi no Teams. Responde objeções e técnicas de fechamento. Resume reuniões de negociação com tarefas automáticas no Pipedrive. Marcus e Sergio têm visão geral do pipeline.</div>
-    <div class="auto-agent"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-manual">Josi + Marcus</span></div>
-  </div>
-  <div class="auto-row">
-    <div class="auto-stage" style="color:var(--green)">06 · Fechamento</div>
-    <div class="auto-desc">Marcel detecta proposta aceita e alerta o time. Deal fechado: Diana retira da fila de prospecção automaticamente. Huxley ativa ICP do setor para gerar novos leads similares. CS briefing do Rodrigo → Marcel alerta Josi sobre oportunidade de expansão.</div>
-    <div class="auto-agent"><span class="agent agent-manual" style="background:rgba(224,122,48,0.15);color:var(--orange);border-color:rgba(224,122,48,0.35)">🤝 Marcel</span><span class="agent agent-diana">📡 Diana</span><span class="agent agent-huxley">🤖 Huxley</span></div>
-  </div>
+  <div class="bcp on" id="b1"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><div class="cl"><div class="clog">SAN</div><div><div class="cn">Sany Group</div><div class="cs2">Industrial · Equipamentos · Faturamento +R$100M</div></div></div><span class="bge bg-red">🔴 Proposta Hub ativa · AuditNext</span></div>
+    <div class="g2"><div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Dores mapeadas</div><div class="li"><span class="mk">›</span>Auditoria de inventário manual — alto volume de SKUs industriais</div><div class="li"><span class="mk">›</span>Conciliação SAP × planilhas de campo — processo semanal demorado</div><div class="li"><span class="mk">›</span>Rastreabilidade insuficiente para compliance</div><div class="li"><span class="mk">›</span>Time sobrecarregado em fechamentos trimestrais</div></div>
+    <div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Proposta de valor</div><div class="li"><span class="mkg">✓</span>Conciliação SAP automatizada: de 2 dias para 2 horas</div><div class="li"><span class="mkg">✓</span>Fluxo de auditoria de inventário 100% automatizado</div><div class="li"><span class="mkg">✓</span>Dashboard de rastreabilidade em tempo real</div><div class="li"><span class="mkg">✓</span>Case análogo: Tata Steel — automação industrial</div></div></div>
+    <div class="dv"></div>
+    <table class="rtbl"><thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th><th>Impacto</th></tr></thead><tbody><tr><td class="rlbl">Horas/mês em conciliação</td><td>120h</td><td class="vg">18h</td><td class="vg">−85%</td></tr><tr><td class="rlbl">Custo mensal economizado</td><td>—</td><td class="vg">R$8.160/mês</td><td class="vg">R$97.920/ano</td></tr><tr><td class="rlbl">Cobertura de transações</td><td>~15%</td><td class="vg">100%</td><td class="vg">+567%</td></tr><tr><td class="rlbl">Payback estimado</td><td colspan="3"><span class="vbig vgold">8–10 meses</span></td></tr></tbody></table>
+    <div class="na"><strong>🎯 Próxima ação da Josi:</strong> Ligar antes do E-mail 4. Demo 1:1 focada em conciliação SAP. Levar Business Case impresso. Oferecer piloto 30 dias num único processo. Envolver TI apenas após aval do Head de Auditoria.</div>
+  </div></div>
+  <div class="bcp" id="b2"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><div class="cl"><div class="clog" style="background:var(--bp)">MAG</div><div><div class="cn">Magalu</div><div class="cs2">Varejo · E-commerce · Faturamento multibilionário</div></div></div><span class="bge bg-red">🔴 Proposta Hub ativa · AuditNext</span></div>
+    <div class="g2"><div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Dores mapeadas</div><div class="li"><span class="mk">›</span>Volume massivo de transações — inauditável manualmente</div><div class="li"><span class="mk">›</span>Auditoria de fornecedores e marketplace: centenas de parceiros</div><div class="li"><span class="mk">›</span>Compliance fiscal em múltiplos estados</div><div class="li"><span class="mk">›</span>Detecção de fraude: reativa, não proativa</div></div>
+    <div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Proposta de valor</div><div class="li"><span class="mkg">✓</span>Auditoria contínua: 100% das operações, não amostras</div><div class="li"><span class="mkg">✓</span>Detecção proativa de anomalias em pagamentos</div><div class="li"><span class="mkg">✓</span>Workflows de compliance fiscal por estado/regime</div><div class="li"><span class="mkg">✓</span>Case análogo: Rabobank — 100% cobertura de transações</div></div></div>
+    <div class="dv"></div>
+    <table class="rtbl"><thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th><th>Impacto</th></tr></thead><tbody><tr><td class="rlbl">Cobertura de transações</td><td>5% (amostra)</td><td class="vg">100%</td><td class="vg">Risco reduzido drasticamente</td></tr><tr><td class="rlbl">Tempo de fechamento de relatório</td><td>15 dias</td><td class="vg">3–4 dias</td><td class="vg">−75%</td></tr><tr><td class="rlbl">Detecção de anomalias</td><td>Reativa</td><td class="vg">Tempo real</td><td class="vg">Prevenção &gt; remediação</td></tr><tr><td class="rlbl">Payback estimado</td><td colspan="3"><span class="vbig vgold">6–8 meses</span></td></tr></tbody></table>
+    <div class="na"><strong>🎯 Próxima ação:</strong> Demo focada em detecção de anomalias em marketplace. Trazer Ericka para a demo técnica. Argumentar com o CAE antes de envolver TI. Case Rabobank é o mais análogo.</div>
+  </div></div>
+  <div class="bcp" id="b3"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><div class="cl"><div class="clog" style="background:var(--gp)">CIM</div><div><div class="cn">Cimed</div><div class="cs2">Farmacêutico · Conta estratégica HupData · AuditNext</div></div></div><span class="bge bg-red">🔴 Proposta Hub ativa · Conta estratégica</span></div>
+    <div class="g2"><div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Dores mapeadas</div><div class="li"><span class="mk">›</span>Rastreabilidade de lotes — exigência ANVISA obrigatória</div><div class="li"><span class="mk">›</span>Compliance tributário farmacêutico: ST, exportação</div><div class="li"><span class="mk">›</span>Auditoria de cadeia de fornecedores</div><div class="li"><span class="mk">›</span>Validação ERP × qualidade × fiscal — processo manual</div></div>
+    <div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Proposta de valor</div><div class="li"><span class="mkg">✓</span>Rastreabilidade de lotes end-to-end — ANVISA ready</div><div class="li"><span class="mkg">✓</span>Cruzamento automático ERP × qualidade × fiscal</div><div class="li"><span class="mkg">✓</span>Scoring automático de risco de fornecedores</div><div class="li"><span class="mkg">✓</span>Aceleração do processo para inspeções ANVISA</div></div></div>
+    <div class="dv"></div>
+    <table class="rtbl"><thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th><th>Impacto</th></tr></thead><tbody><tr><td class="rlbl">Preparação para auditoria ANVISA</td><td>3–4 semanas</td><td class="vg">3–5 dias</td><td class="vg">−80%</td></tr><tr><td class="rlbl">Rastreabilidade de lotes</td><td>Parcial/manual</td><td class="vg">100% automatizada</td><td class="vg">Risco regulatório eliminado</td></tr><tr><td class="rlbl">Auditorias de fornecedores/ano</td><td>20</td><td class="vg">80+</td><td class="vg">4× mais cobertura</td></tr><tr><td class="rlbl">Payback estimado</td><td colspan="3"><span class="vbig vgold">7–9 meses</span></td></tr></tbody></table>
+    <div class="na"><strong>🎯 Próxima ação:</strong> Cimed é conta estratégica — Marcus envolvido diretamente. Sessão com Head de Auditoria + Qualidade simultaneamente. O argumento ANVISA é o mais poderoso para justificar internamente.</div>
+  </div></div>
+  <div class="bcp" id="b4"><div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><div class="cl"><div class="clog" style="background:var(--gold-p)">COP</div><div><div class="cn">Copa Energia</div><div class="cs2">Energia · Distribuição · Faturamento +R$100M</div></div></div><span class="bge bg-red">🔴 Proposta Hub ativa · AuditNext</span></div>
+    <div class="g2"><div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Dores mapeadas</div><div class="li"><span class="mk">›</span>Auditoria regulatória ANEEL: prazos curtos, alta penalidade</div><div class="li"><span class="mk">›</span>Conciliação de dados de consumo, faturamento e perdas</div><div class="li"><span class="mk">›</span>Auditoria de contratos com prestadores de rede</div><div class="li"><span class="mk">›</span>Controles internos para relatórios ESG</div></div>
+    <div><div style="11.6px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:10px">Proposta de valor</div><div class="li"><span class="mkg">✓</span>Automação de relatórios ANEEL: de semanas para dias</div><div class="li"><span class="mkg">✓</span>Auditoria contínua de perdas comerciais e técnicas</div><div class="li"><span class="mkg">✓</span>Validação automática de contratos de prestadores</div><div class="li"><span class="mkg">✓</span>Case análogo: Energisa — resultado comprovado HupData</div></div></div>
+    <div class="dv"></div>
+    <table class="rtbl"><thead><tr><th>Métrica</th><th>Antes</th><th>Depois</th><th>Impacto</th></tr></thead><tbody><tr><td class="rlbl">Preparação relatório ANEEL</td><td>4–6 semanas</td><td class="vg">5–7 dias</td><td class="vg">−80%</td></tr><tr><td class="rlbl">Detecção de perdas comerciais</td><td>Amostral/mensal</td><td class="vg">Contínua/diária</td><td class="vg">Recuperação proativa</td></tr><tr><td class="rlbl">Contratos auditados</td><td>30%</td><td class="vg">100%</td><td class="vg">Risco regulatório reduzido</td></tr><tr><td class="rlbl">Payback estimado</td><td colspan="3"><span class="vbig vgold">8–12 meses</span></td></tr></tbody></table>
+    <div class="na"><strong>🎯 Próxima ação:</strong> Usar Energisa como referência. Argumento ANEEL cria urgência (deadline regulatório). Demo focada em relatório regulatório real. Envolver Regulação além da Auditoria.</div>
+  </div></div>
+</div>
 
-</div><!-- /page -->
+<!-- P15: KNIME -->
+<div class="pn" id="p15">
+  <div class="sh"><div><h2>Parceria com KNIME</h2><p>Colaboração de conteúdo e credibilidade · 3 frentes ativas</p></div><div class="sh-r">Elite Partner · Americas Partner of the Year 2022</div></div>
+  <div class="card" style="background:var(--gold-p);border-color:var(--gold-b)"><div class="ct" style="color:var(--gold-l)">💡 Modelo de parceria</div><p style="13.9px;color:var(--txt);line-height:1.7">A parceria com a KNIME está ativa em três frentes: <strong>participação em webinars</strong>, <strong>eBook exclusivo co-branded</strong> e <strong>certificação conjunta</strong>. Essas ações fortalecem a credibilidade da HupData e ampliam o alcance no segmento GRC+A.</p></div>
+  <div class="g3" style="margin-top:4px">
+    <div class="card"><div class="ct"><span class="ib ig">🎙</span>Participação em Webinars</div><p style="13.9px;color:var(--muted);line-height:1.6;margin-bottom:10px">Especialista KNIME no Webinar #3 (agosto, C-Level). Presença KNIME valida a mensagem e eleva a autoridade da HupData no segmento GRC.</p><div style="12.2px;font-family:var(--fm);color:var(--gold)">Marcus contata ponto focal KNIME até junho</div></div>
+    <div class="card"><div class="ct"><span class="ib ib2">📘</span>eBook Exclusivo Co-branded</div><p style="13.9px;color:var(--muted);line-height:1.6;margin-bottom:10px">"KNIME para Auditores Internos" com logotipo conjunto. Cases Rabobank e ING em PT-BR. Distribuído em webinars e como isca de captura de lead.</p><div style="12.2px;font-family:var(--fm);color:var(--green)">✓ Ericka produziu · KNIME valida e assina</div></div>
+    <div class="card"><div class="ct"><span class="ib iy">🏅</span>Certificação KNIME para Auditores</div><p style="13.9px;color:var(--muted);line-height:1.6;margin-bottom:10px">Trilha de certificação na KNIME Academy PT co-branded. Lançamento no Webinar #3. Analistas certificados viram campeões internos.</p><div style="12.2px;font-family:var(--fm);color:var(--gold)">Proposta formal ao KNIME · Prazo: julho</div></div>
+  </div>
+  <div class="card"><div class="ct"><span class="ib iy">📋</span>Checklist com KNIME — próximas 4 semanas</div><div class="cs">Marcus lidera</div>
+    <div class="li"><span class="mk">01</span>Confirmar especialista KNIME para Webinar #3 (agosto) — 60 min co-branded</div>
+    <div class="li"><span class="mk">02</span>Solicitar autorização para cases Rabobank, ING e Tata Steel em materiais PT-BR</div>
+    <div class="li"><span class="mk">03</span>Propor criação da trilha de auditoria na KNIME Academy PT</div>
+    <div class="li"><span class="mk">04</span>Alinhar critérios e processo da Certificação KNIME para Auditores</div>
+    <div class="li"><span class="mk">05</span>Incluir AuditNext 2027 no calendário de eventos KNIME para América Latina</div>
+  </div>
+</div>
+
+<!-- P16: AGENTES -->
+<div class="pn" id="p16">
+  <div class="sh"><div><h2>Agentes: Diana · Marcel · Huxley</h2><p>Papéis distintos · etapas diferentes do funil · todos via Microsoft Teams</p></div><div class="sh-r">IA construída na HupData com Anthropic</div></div>
+  <div class="g3">
+    <div class="card" style="border-color:rgba(42,170,184,.25)"><div class="ct" style="color:var(--teal)"><span class="ib it">📡</span>Diana — Prospecção</div><div class="cs">Etapas 01, 02 e 03 · 570+ leads monitorados</div>
+      <div class="li"><span class="mkt">►</span>Prioriza leads com score por cargo e setor</div>
+      <div class="li"><span class="mkt">►</span>Verifica Pipedrive antes do 1º contato</div>
+      <div class="li"><span class="mkt">►</span>Sugere script por cargo com case de referência</div>
+      <div class="li"><span class="mkt">►</span>Alerta quando empresa-alvo se inscreve no webinar</div>
+      <div class="li"><span class="mkt">►</span>Identifica empresa com trilha Academy não contatada</div>
+      <div style="margin-top:12px;padding:10px;background:var(--tp);border-radius:7px;font-size:12.8px;color:var(--muted);line-height:1.7"><strong style="color:var(--teal)">Exemplos no Teams:</strong><br>"Quem devo abordar hoje?"<br>"Tem leads do setor de energia?"<br>"A empresa X já está no Pipedrive?"<br>"Como abordar um Head de Auditoria?"</div>
+    </div>
+    <div class="card" style="border-color:rgba(224,122,48,.25)"><div class="ct" style="color:var(--orange)"><span class="ib io">🤝</span>Marcel — Vendas Ativas</div><div class="cs">Etapas 04, 05 e 06 · deals 24h · Pipedrive</div>
+      <div class="li"><span class="mk" style="color:var(--orange)">►</span>Monitora deals a cada hora — detecta atrasos</div>
+      <div class="li"><span class="mk" style="color:var(--orange)">►</span>Envia até 3 prioridades diárias no Teams para Josi</div>
+      <div class="li"><span class="mk" style="color:var(--orange)">►</span>Resume reuniões gravadas → tarefas no Pipedrive</div>
+      <div class="li"><span class="mk" style="color:var(--orange)">►</span>Responde objeções e técnicas de fechamento</div>
+      <div class="li"><span class="mk" style="color:var(--orange)">►</span>Marcus e Sergio têm visão geral do pipeline</div>
+      <div style="margin-top:12px;padding:10px;background:var(--op);border-radius:7px;font-size:12.8px;color:var(--muted);line-height:1.7"><strong style="color:var(--orange)">Exemplos no Teams:</strong><br>"Quais minhas prioridades hoje?"<br>"Qual o status do deal Cimed?"<br>"Como lidar com objeção de preço?"<br>"Resuma reunião"</div>
+    </div>
+    <div class="card" style="border-color:rgba(139,111,212,.25)"><div class="ct" style="color:var(--purple)"><span class="ib ip">🤖</span>Huxley — Conteúdo</div><div class="cs">Topo · Nutrição · Pós-fechamento · 3x/semana</div>
+      <div class="li"><span class="mkp">►</span>Gera posts para 5 pilares editoriais auditoria</div>
+      <div class="li"><span class="mkp">►</span>Score 90/100 médio para o ICP Auditoria Interna</div>
+      <div class="li"><span class="mkp">►</span>Gera legendas dos shorts adaptadas por canal</div>
+      <div class="li"><span class="mkp">►</span>Ativa ICP do setor após fechamento de deal</div>
+      <div class="li"><span class="mkp">►</span>Nutre leads de médio/longo prazo com conteúdo por setor</div>
+      <div style="margin-top:12px;padding:10px;background:var(--pp);border-radius:7px;font-size:12.8px;color:var(--muted);line-height:1.7"><strong style="color:var(--purple)">Silene gerencia:</strong><br>Revisão/aprovação · Agendamento Buffer · Configuração de ICPs por setor · Adaptação para LinkedIn Ads</div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
 
 <script>
-const stageColors = {
-  topo:       { color:'var(--blue)',   border:'rgba(74,143,224,0.4)',   bg:'var(--blue-p)' },
-  contato:    { color:'var(--purple)', border:'rgba(139,111,212,0.4)',  bg:'var(--purple-p)' },
-  nurture:    { color:'var(--teal)',   border:'rgba(42,170,184,0.4)',   bg:'var(--teal-p)' },
-  reuniao:    { color:'var(--orange)', border:'rgba(224,122,48,0.4)',   bg:'var(--orange-p)' },
-  proposta:   { color:'var(--gold-l)', border:'var(--gold-b)',          bg:'var(--gold-pale)' },
-  fechamento: { color:'var(--green)',  border:'var(--green-b)',         bg:'var(--green-p)' },
-};
-
-function selectStage(name) {
-  // panels
-  document.querySelectorAll('.detail-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-
-  // buttons
-  document.querySelectorAll('.ss-btn').forEach(b => {
-    b.style.color = '';
-    b.style.borderColor = '';
-    b.style.background = '';
-    b.classList.remove('active');
-  });
-  const btn = document.getElementById('btn-' + name);
-  const c = stageColors[name];
-  btn.style.color = c.color;
-  btn.style.borderColor = c.border;
-  btn.style.background = c.bg;
-  btn.classList.add('active');
-
-  // scroll to selector
-  document.querySelector('.stage-selector').scrollIntoView({ behavior:'smooth', block:'nearest' });
+function go(id,el){
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(el)el.classList.add('on');
+}
+function showE(id){
+  document.querySelectorAll('.ep').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.etab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.currentTarget.classList.add('on');
+}
+function showW(id){
+  document.querySelectorAll('.wp').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.wtab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.currentTarget.classList.add('on');
+}
+function showBC(id){
+  document.querySelectorAll('.bcp').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.bctab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  event.currentTarget.classList.add('on');
 }
 </script>
-
 </body>
 </html>
